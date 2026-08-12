@@ -1,0 +1,43 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/razorpay/create-order"
+  to = "/.netlify/functions/razorpay-create-order"
+  status = 200
+
+[[redirects]]
+  from = "/api/razorpay/verify-payment"
+  to = "/.netlify/functions/razorpay-verify-payment"
+  status = 200
+
+[[redirects]]
+  from = "/api/claude-notes"
+  to = "/.netlify/functions/claude-notes"
+  status = 200
+
+[[redirects]]
+  from = "/api/claude-quiz"
+  to = "/.netlify/functions/claude-quiz"
+  status = 200
+
+[[redirects]]
+  from = "/api/claude-planner"
+  to = "/.netlify/functions/claude-planner"
+  status = 200
+
+[[redirects]]
+  from = "/api/claude-chat"
+  to = "/.netlify/functions/claude-chat"
+  status = 200
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"

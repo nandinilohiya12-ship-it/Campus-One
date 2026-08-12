@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Campus One">
+    <title>Campus One</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/campus-one-icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/campus-one-icon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section class="login-gate" id="loginGate" aria-label="Campus One login">
+        <div class="login-panel">
+            <div class="login-brand-strip">
+                <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
+                <div>
+                    <strong>Campus One</strong>
+                    <small>Secure rooms, smart notes, CR updates</small>
+                </div>
+            </div>
+
+            <div class="login-slider" id="loginSlider">
+                <div class="login-slide auth-slide" aria-label="Account login">
+                    <div class="section-title">
+                        <p class="eyebrow">Step 1 of 2</p>
+                        <h1>Sign in</h1>
+                        <p class="login-copy">Create your Campus One account once, then use your email and password whenever you come back.</p>
+                    </div>
+
+                    <div class="auth-mode" aria-label="Login mode">
+                        <button class="auth-mode-btn active" type="button" id="authLoginTab">Login</button>
+                        <button class="auth-mode-btn" type="button" id="authSignupTab">Sign up</button>
+                    </div>
+
+                    <div class="form-grid auth-grid">
+                        <div class="signup-only">
+                            <label for="loginName">Full name</label>
+                            <input type="text" id="loginName" placeholder="Enter your full name">
+                        </div>
+                        <div>
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" placeholder="you@college.edu">
+                        </div>
+                        <div>
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="Minimum 6 characters">
+                        </div>
+                    </div>
+
+                    <label class="remember-row" for="rememberMe">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me on this device</span>
+                    </label>
+
+                    <button class="primary-button auth-submit" type="button" id="authSubmitBtn">
+                        <i data-lucide="log-in"></i>
+                        <span>Login</span>
+                    </button>
+
+                    <div class="login-feature-row" aria-label="Campus One features">
+                        <span><i data-lucide="shield-check"></i> CR locked</span>
+                        <span><i data-lucide="notebook-tabs"></i> Notes market</span>
+                        <span><i data-lucide="sparkles"></i> AI tools</span>
+                    </div>
+                </div>
+
+                <div class="login-slide room-login-fields" id="roomLoginFields" aria-label="Room access">
+                    <div class="room-slide-head">
+                        <button class="icon-button" type="button" id="backToAuthBtn" aria-label="Back to login">
+                            <i data-lucide="arrow-left"></i>
+                        </button>
+                        <div class="section-title compact-title">
+                            <p class="eyebrow">Step 2 of 2</p>
+                            <h2>Enter room details</h2>
+                            <p class="login-copy">Choose CR to create/manage a room, or Student to join an existing class room.</p>
+                        </div>
+                    </div>
+
+                    <div class="account-chip" id="activeAccountChip"></div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="loginCollege">College</label>
+                            <input type="text" id="loginCollege" placeholder="Enter college name">
+                        </div>
+                        <div>
+                            <label for="loginBatch">Batch</label>
+                            <input type="text" id="loginBatch" placeholder="Example: CSE 2026">
+                        </div>
+                        <div>
+                            <label for="loginRoomCode">Room code</label>
+                            <input type="text" id="loginRoomCode" placeholder="Example: CSE-2026-A">
+                        </div>
+                        <div>
+                            <label for="loginCrPin">CR PIN</label>
+                            <input type="password" id="loginCrPin" placeholder="Required for CR access">
+                        </div>
+                    </div>
+
+                    <label for="loginStudent" class="visually-hidden">Saved profiles</label>
+                    <select id="loginStudent" class="hidden" tabindex="-1" aria-hidden="true"></select>
+
+                    <div class="login-actions">
+                        <button class="primary-button" type="button" id="loginCrBtn">
+                            <i data-lucide="shield-check"></i>
+                            <span>Continue as CR</span>
+                        </button>
+                        <button class="ghost-button" type="button" id="loginStudentBtn">
+                            <i data-lucide="graduation-cap"></i>
+                            <span>Continue as Student</span>
+                        </button>
+                    </div>
+
+                    <div class="login-map">
+                        <div>
+                            <strong>CR Panel</strong>
+                            <span>Create a room, set the CR PIN, add students, and freeze CR access.</span>
+                        </div>
+                        <div>
+                            <strong>Student Board</strong>
+                            <span>Join with the room code to see shared announcements, CR posts, and notes.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="floating-tabs" aria-label="Campus One navigation">
+        <a class="brand-tab" href="#today" aria-label="Campus One home">
+            <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
+            <span>
+                <strong>Campus One</strong>
+                <small>Academic command center</small>
+            </span>
+        </a>
+
+        <div class="tab-track" role="tablist" aria-label="Sections">
+            <button class="nav-tab active" type="button" data-scroll-target="today">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Today</span>
+            </button>
+            <button class="nav-tab" type="button" data-scroll-target="notesHub">
+                <i data-lucide="notebook-tabs"></i>
+                <span>Notes</span>
+            </button>
+            <button class="nav-tab" type="button" data-scroll-target="crBoard">
+                <i data-lucide="clipboard-list"></i>
+                <span>CR Board</span>
+            </button>
+            <button class="nav-tab cr-only" type="button" data-scroll-target="compose">
+                <i data-lucide="send"></i>
+                <span>Compose</span>
+            </button>
+            <button class="nav-tab" type="button" data-scroll-target="feed">
+                <i data-lucide="message-square-text"></i>
+                <span>Feed</span>
+            </button>
+            <button class="nav-tab" type="button" data-scroll-target="planner">
+                <i data-lucide="calendar-days"></i>
+                <span>Planner</span>
+            </button>
+            <button class="nav-tab" type="button" data-scroll-target="insights">
+                <i data-lucide="chart-no-axes-combined"></i>
+                <span>Insights</span>
+            </button>
+        </div>
+
+        <div class="nav-actions">
+            <button class="mode-switch" type="button" id="roleToggle">
+                <i data-lucide="users-round"></i>
+                <span id="roleLabel">Switch Login</span>
+            </button>
+            <button class="icon-button notification-button" type="button" id="notifyBtn" aria-label="Open unread announcements">
+                <i data-lucide="bell"></i>
+                <span id="notificationBubble">0</span>
+            </button>
+            <button class="profile-nav-button" type="button" id="profileNavBtn" aria-label="Open profile">
+                <span id="profileNavAvatar">CO</span>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="app-section today-section" id="today">
+            <div class="hero-board">
+                <div class="hero-copy">
+                    <p class="eyebrow">Campus communication without chaos</p>
+                    <h1 id="greetingTitle">CR Mission Control</h1>
+                    <p id="greetingSub">Send verified updates to the right students, track attention, and keep every class aligned.</p>
+                    <div class="hero-controls">
+                        <div class="compact-field active-identity-card">
+                            <span>Signed in</span>
+                            <strong id="studentSection">Campus One User</strong>
+                        </div>
+                        <button class="primary-button cr-only" type="button" data-scroll-target="compose">
+                            <i data-lucide="sparkles"></i>
+                            <span>New Broadcast</span>
+                        </button>
+                        <button class="ghost-button" type="button" data-scroll-target="notesHub">
+                            <i data-lucide="upload-cloud"></i>
+                            <span>Upload Notes</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="live-brief" aria-label="Live campus brief">
+                    <div>
+                        <span class="brief-label">Now active</span>
+                        <strong id="activeStudents">0</strong>
+                        <small>students connected</small>
+                    </div>
+                    <div>
+                        <span class="brief-label">Read rate</span>
+                        <strong id="readRateHero">0%</strong>
+                        <small>across active notices</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-grid" aria-label="Campus One statistics">
+                <article class="stat-card">
+                    <span class="stat-icon"><i data-lucide="megaphone"></i></span>
+                    <div>
+                        <p>Announcements</p>
+                        <strong id="announcementCount">0</strong>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon teal"><i data-lucide="eye"></i></span>
+                    <div>
+                        <p>Unread</p>
+                        <strong id="unreadCount">0</strong>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon coral"><i data-lucide="siren"></i></span>
+                    <div>
+                        <p>Urgent</p>
+                        <strong id="urgentCount">0</strong>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon amber"><i data-lucide="messages-square"></i></span>
+                    <div>
+                        <p>Responses</p>
+                        <strong id="responseCount">0</strong>
+                    </div>
+                </article>
+            </div>
+
+            <div class="dashboard-grid">
+                <section class="priority-panel cr-only" aria-labelledby="manageStudentsHeading">
+                    <div class="section-title">
+                        <p class="eyebrow">CR setup</p>
+                        <h2 id="manageStudentsHeading">Manage Room</h2>
+                    </div>
+                    <div class="room-control-card">
+                        <div>
+                            <span>Room code</span>
+                            <strong id="roomCodeLabel">No room</strong>
+                        </div>
+                        <button class="ghost-button" type="button" id="copyRoomBtn">
+                            <i data-lucide="copy"></i>
+                            <span>Copy Link</span>
+                        </button>
+                    </div>
+                    <label class="check-option" for="freezeCrAccess">
+                        <input type="checkbox" id="freezeCrAccess">
+                        <span>
+                            <strong>Freeze CR access</strong>
+                            <small>Only approved CRs can open CR features. Maximum 2 CRs per room.</small>
+                        </span>
+                    </label>
+                    <form id="studentManageForm" class="student-manage-form">
+                        <label for="managedStudentName">Student name</label>
+                        <input type="text" id="managedStudentName" placeholder="Enter student name">
+                        <div class="form-grid">
+                            <div>
+                                <label for="managedStudentCollege">College</label>
+                                <input type="text" id="managedStudentCollege" placeholder="College name">
+                            </div>
+                            <div>
+                                <label for="managedStudentBatch">Batch</label>
+                                <input type="text" id="managedStudentBatch" placeholder="Batch">
+                            </div>
+                        </div>
+                        <button class="primary-button full-width" type="submit">
+                            <i data-lucide="user-plus"></i>
+                            <span>Add Student</span>
+                        </button>
+                        <button class="ghost-button full-width" type="button" id="addCoCrBtn">
+                            <i data-lucide="shield-plus"></i>
+                            <span>Add as Co-CR</span>
+                        </button>
+                    </form>
+                    <div id="studentsList" class="students-list"></div>
+                </section>
+
+                <section class="priority-panel" aria-labelledby="priorityHeading">
+                    <div class="section-title">
+                        <p class="eyebrow">High signal</p>
+                        <h2 id="priorityHeading">Priority Board</h2>
+                    </div>
+                    <div id="urgentList" class="priority-list"></div>
+                </section>
+
+                <section class="pulse-panel" aria-labelledby="pulseHeading">
+                    <div class="section-title">
+                        <p class="eyebrow">Live setup</p>
+                        <h2 id="pulseHeading">Workspace Status</h2>
+                    </div>
+                    <div class="pulse-grid">
+                        <div class="pulse-item">
+                            <i data-lucide="users-round"></i>
+                            <strong id="pulseStudents">0</strong>
+                            <span>students added by CR</span>
+                        </div>
+                        <div class="pulse-item">
+                            <i data-lucide="notebook-tabs"></i>
+                            <strong id="pulseNotes">0</strong>
+                            <span>notes in marketplace</span>
+                        </div>
+                        <div class="pulse-item">
+                            <i data-lucide="clipboard-list"></i>
+                            <strong id="pulseCrPosts">0</strong>
+                            <span>CR board posts</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <section class="app-section notes-section" id="notesHub">
+            <div class="section-title wide-title">
+                <p class="eyebrow">AI notes marketplace</p>
+                <h2>Upload Notes and Set Your Price</h2>
+            </div>
+
+            <div class="ai-tool-panel" id="aiToolPanel">
+                <div class="ai-tool-copy">
+                    <p class="eyebrow">Student AI tool</p>
+                    <h3>AI Notes Summarizer</h3>
+                    <p>Pay ₹20 once, then paste notes or upload a file to generate a color-coded summary, a day-by-day study plan with key dates, and priority topics — quiz and a personalized day planner unlock right after.</p>
+                </div>
+                <button class="primary-button" type="button" id="aiToolPayBtn">
+                    <i data-lucide="wallet-cards"></i>
+                    <span>Unlock AI Summarizer ₹20</span>
+                </button>
+
+                <div class="ai-history-bar" id="aiHistoryBar"></div>
+
+                <form class="ai-tool-form locked" id="aiToolForm">
+                    <div class="form-grid">
+                        <div>
+                            <label for="aiToolTitle">Notes title</label>
+                            <input type="text" id="aiToolTitle" placeholder="Unit 2 revision" required>
+                        </div>
+                        <div>
+                            <label for="aiToolSubject">Subject</label>
+                            <input type="text" id="aiToolSubject" placeholder="Subject name" required>
+                        </div>
+                        <div>
+                            <label for="aiToolFile">Upload file</label>
+                            <input type="file" id="aiToolFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt">
+                        </div>
+                    </div>
+                    <label for="aiToolText">Paste notes</label>
+                    <textarea id="aiToolText" rows="7" placeholder="Paste your notes here, or upload a file above."></textarea>
+
+                    <button class="primary-button full-width" type="submit">
+                        <i data-lucide="sparkles"></i>
+                        <span>Summarize My Notes</span>
+                    </button>
+                    <p class="recipient-note" id="aiToolStatus">Unlock the AI summarizer to use this tool.</p>
+                </form>
+                <div id="aiToolResult" class="ai-result-panel"></div>
+            </div>
+
+            <div class="notes-grid">
+                <form class="composer notes-uploader" id="notesUploadForm">
+                    <div class="upload-banner">
+                        <i data-lucide="sparkles"></i>
+                        <div>
+                            <strong>Claude-powered note pack</strong>
+                            <span>Upload once. Summary, plan, quiz, and deadlines are generated and stored.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="noteTitle">Note title</label>
+                            <input type="text" id="noteTitle" placeholder="Data Structures Unit 3" required>
+                        </div>
+                        <div>
+                            <label for="noteSubject">Subject</label>
+                            <input type="text" id="noteSubject" placeholder="Computer Science" required>
+                        </div>
+                        <div>
+                            <label for="noteCollege">College name</label>
+                            <input type="text" id="noteCollege" placeholder="Your college name" required>
+                        </div>
+                        <div>
+                            <label for="noteFile">File upload</label>
+                            <input type="file" id="noteFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" required>
+                        </div>
+                        <div>
+                            <label for="notePrice">Seller price</label>
+                            <input type="number" id="notePrice" min="10" step="1" placeholder="Set price in rupees" required>
+                        </div>
+                    </div>
+
+                    <div class="fixed-price-line">
+                        <span id="notePriceHint">Suggested max updates after file selection</span>
+                        <strong>AI pack ₹20</strong>
+                    </div>
+
+                    <button class="primary-button full-width" type="submit">
+                        <i data-lucide="cloud-upload"></i>
+                        <span>Upload Notes</span>
+                    </button>
+                    <p class="recipient-note" id="noteAiStatus">Claude API endpoint is used when configured; demo AI generation works offline.</p>
+                </form>
+
+                <aside class="preview-panel earnings-panel">
+                    <div class="section-title">
+                        <p class="eyebrow">Uploader earnings</p>
+                        <h2>My Earnings</h2>
+                    </div>
+                    <div class="earnings-total">
+                        <span>Total earned</span>
+                        <strong id="totalEarnings">₹0</strong>
+                    </div>
+                    <div id="earningsList" class="earnings-list"></div>
+                </aside>
+            </div>
+
+            <div class="marketplace-head">
+                <div class="section-title">
+                    <p class="eyebrow">Browse Notes</p>
+                    <h2>Premium Study Packs</h2>
+                </div>
+                <label class="search-box" for="notesSearch">
+                    <i data-lucide="search"></i>
+                    <input type="search" id="notesSearch" placeholder="Search notes, subjects, colleges">
+                </label>
+            </div>
+
+            <div id="notesList" class="notes-list"></div>
+        </section>
+
+        <section class="app-section cr-board-section" id="crBoard">
+            <div class="feed-heading">
+                <div class="section-title">
+                    <p class="eyebrow">College-filtered notices</p>
+                    <h2>CR Board</h2>
+                </div>
+                <span class="college-pill" id="studentCollegeLabel">Your College</span>
+            </div>
+
+            <form class="composer cr-post-form cr-only" id="crPostForm">
+                <div class="form-grid">
+                    <div>
+                        <label for="crPostTitle">Title</label>
+                        <input type="text" id="crPostTitle" placeholder="Exam seating update" required>
+                    </div>
+                    <div>
+                        <label for="crPostCollege">College</label>
+                        <input type="text" id="crPostCollege" placeholder="Your college name" required>
+                    </div>
+                    <div>
+                        <label for="crPostBatch">Batch</label>
+                        <input type="text" id="crPostBatch" placeholder="CSE 2026">
+                    </div>
+                    <div>
+                        <label for="crPostFile">Attachment</label>
+                        <input type="file" id="crPostFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                    </div>
+                </div>
+                <label for="crPostBody">Message body</label>
+                <textarea id="crPostBody" rows="5" placeholder="Write the CR update here..." required></textarea>
+                <label class="check-option" for="crPostPinned">
+                    <input type="checkbox" id="crPostPinned">
+                    <span>
+                        <strong>Pin this CR post</strong>
+                        <small>Pinned posts appear first for students in this college</small>
+                    </span>
+                </label>
+                <button class="primary-button full-width" type="submit">
+                    <i data-lucide="send"></i>
+                    <span>Post to CR Board</span>
+                </button>
+            </form>
+
+            <div id="crBoardList" class="announcement-list"></div>
+        </section>
+
+        <section class="app-section compose-section cr-only" id="compose">
+            <div class="section-title wide-title">
+                <p class="eyebrow">Structured broadcasting</p>
+                <h2>Smart Announcement Composer</h2>
+            </div>
+
+            <div class="compose-grid">
+                <form class="composer" id="announcementForm">
+                    <div class="template-row" id="templateChips" aria-label="Announcement templates"></div>
+
+                    <label for="message">Announcement</label>
+                    <textarea id="message" maxlength="280" rows="7" placeholder="Write the announcement students need to see."></textarea>
+                    <div class="field-meta">
+                        <span id="charCount">0/280</span>
+                        <span id="toneHint">Clear, direct, student friendly</span>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="mention">@ Student recipients</label>
+                            <select id="mention" multiple size="6">
+                                <option value="All" selected>All Students</option>
+                            </select>
+                            <div class="recipient-chips" id="recipientChips" aria-label="Tap recipients"></div>
+                            <small class="recipient-note">Select names for confidential delivery. Ctrl/Command lets you choose multiple.</small>
+                        </div>
+                        <div>
+                            <label for="category">Category</label>
+                            <select id="category">
+                                <option value="Academic">Academic</option>
+                                <option value="Placement">Placement</option>
+                                <option value="Event">Event</option>
+                                <option value="Club">Club</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="priority">Priority</label>
+                            <select id="priority">
+                                <option value="Normal">Normal</option>
+                                <option value="Important">Important</option>
+                                <option value="Urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="dueDate">Due date</label>
+                            <input type="datetime-local" id="dueDate">
+                        </div>
+                    </div>
+
+                    <div class="option-grid">
+                        <label class="check-option" for="pinAnnouncement">
+                            <input type="checkbox" id="pinAnnouncement">
+                            <span>
+                                <strong>Pin announcement</strong>
+                                <small>Keep it above normal updates</small>
+                            </span>
+                        </label>
+                        <label class="check-option" for="requireResponse">
+                            <input type="checkbox" id="requireResponse" checked>
+                            <span>
+                                <strong>Collect responses</strong>
+                                <small>Attending, maybe, not attending</small>
+                            </span>
+                        </label>
+                    </div>
+
+                    <label class="file-drop" for="attachmentInput">
+                        <i data-lucide="paperclip"></i>
+                        <span>
+                            <strong id="attachmentName">Attach document</strong>
+                            <small>PDF, image, notice, or timetable</small>
+                        </span>
+                        <input type="file" id="attachmentInput" multiple>
+                    </label>
+
+                    <button class="primary-button full-width" id="sendBtn" type="submit">
+                        <i data-lucide="send-horizontal"></i>
+                        <span>Send Announcement</span>
+                    </button>
+                </form>
+
+                <aside class="preview-panel" aria-label="Announcement preview">
+                    <div class="phone-shell">
+                        <div class="phone-top">
+                            <span></span>
+                            <strong>Campus One</strong>
+                            <i data-lucide="wifi"></i>
+                        </div>
+                        <article class="preview-card" id="previewCard">
+                            <div class="preview-meta">
+                                <span id="previewCategory">Academic</span>
+                                <span id="previewPriority">Normal</span>
+                            </div>
+                            <h3 id="previewAudience">To All Students</h3>
+                            <p id="previewMessage">Your announcement preview will appear here as you type.</p>
+                            <div class="preview-footer">
+                                <span>Read rate 0%</span>
+                                <span>Just now</span>
+                            </div>
+                        </article>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="app-section feed-section" id="feed">
+            <div class="feed-heading">
+                <div class="section-title">
+                    <p class="eyebrow">Single source of truth</p>
+                    <h2>Live Announcement Feed</h2>
+                </div>
+                <button class="ghost-button danger cr-only" type="button" id="clearBtn">
+                    <i data-lucide="trash-2"></i>
+                    <span>Clear Feed</span>
+                </button>
+            </div>
+
+            <div class="feed-tools">
+                <label class="search-box" for="feedSearch">
+                    <i data-lucide="search"></i>
+                    <input type="search" id="feedSearch" placeholder="Search announcements, students, categories">
+                </label>
+                <select id="filterCategory" aria-label="Filter by category">
+                    <option value="All">All categories</option>
+                    <option value="Academic">Academic</option>
+                    <option value="Placement">Placement</option>
+                    <option value="Event">Event</option>
+                    <option value="Club">Club</option>
+                    <option value="Admin">Admin</option>
+                </select>
+                <select id="sortMode" aria-label="Sort feed">
+                    <option value="newest">Newest first</option>
+                    <option value="priority">Priority first</option>
+                    <option value="readRate">Read rate</option>
+                </select>
+            </div>
+
+            <div class="filter-tabs" id="feedFilters" role="tablist" aria-label="Feed filters">
+                <button class="feed-filter active" type="button" data-filter="all">All</button>
+                <button class="feed-filter" type="button" data-filter="mine">For Me</button>
+                <button class="feed-filter" type="button" data-filter="unread">Unread</button>
+                <button class="feed-filter" type="button" data-filter="pinned">Pinned</button>
+                <button class="feed-filter" type="button" data-filter="urgent">Urgent</button>
+            </div>
+
+            <div id="announcementList" class="announcement-list" aria-live="polite"></div>
+
+            <div class="empty-state" id="emptyState">
+                <i data-lucide="inbox"></i>
+                <h3>No matching announcements</h3>
+                <p>Adjust the filters or send a new update.</p>
+            </div>
+        </section>
+
+        <section class="app-section planner-section" id="planner">
+            <div class="section-title wide-title">
+                <p class="eyebrow">Real deadlines only</p>
+                <h2>Announcement Follow-ups</h2>
+            </div>
+            <div class="planner-grid" id="plannerList"></div>
+        </section>
+
+        <section class="app-section insights-section" id="insights">
+            <div class="section-title wide-title">
+                <p class="eyebrow">Approval-ready reporting</p>
+                <h2>Communication Insights</h2>
+            </div>
+            <div class="insight-grid">
+                <article class="metric-panel">
+                    <div class="metric-top">
+                        <span>Announcement read rate</span>
+                        <strong id="readRateMetric">0%</strong>
+                    </div>
+                    <div class="meter"><span id="readRateBar"></span></div>
+                </article>
+                <article class="metric-panel">
+                    <div class="metric-top">
+                        <span>Engagement rate</span>
+                        <strong id="engagementMetric">0%</strong>
+                    </div>
+                    <div class="meter"><span id="engagementBar"></span></div>
+                </article>
+                <article class="metric-panel">
+                    <div class="metric-top">
+                        <span>Missed-update risk</span>
+                        <strong id="riskMetric">Low</strong>
+                    </div>
+                    <div class="meter risk"><span id="riskBar"></span></div>
+                </article>
+            </div>
+        </section>
+
+        <section class="app-section profile-section" id="profile" aria-hidden="true">
+            <div class="profile-drawer-head">
+                <div class="section-title wide-title">
+                    <p class="eyebrow">My Campus One</p>
+                    <h2>Profile and Progress</h2>
+                </div>
+                <button class="icon-button" type="button" id="profileCloseBtn" aria-label="Close profile">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="profile-grid">
+                <article class="profile-card profile-identity-card">
+                    <div class="profile-avatar" id="profileAvatar">CO</div>
+                    <div>
+                        <p class="eyebrow" id="profilePlan">Normal</p>
+                        <h3 id="profileName">Not logged in</h3>
+                        <p id="profileMeta">Login to view your profile.</p>
+                    </div>
+                    <button class="ghost-button profile-logout-button" type="button" id="logoutBtn">
+                        <i data-lucide="log-out"></i>
+                        <span>Log out</span>
+                    </button>
+                </article>
+                <article class="profile-card">
+                    <span>Room</span>
+                    <strong id="profileRoom">No room</strong>
+                    <small id="profileRole">Student</small>
+                </article>
+                <article class="profile-card">
+                    <span>Notes Uploaded</span>
+                    <strong id="profileUploaded">0</strong>
+                    <small>Your listed study packs</small>
+                </article>
+                <article class="profile-card">
+                    <span>Notes Purchased</span>
+                    <strong id="profilePurchased">0</strong>
+                    <small>Unlocked downloads</small>
+                </article>
+                <article class="profile-card">
+                    <span>AI Access</span>
+                    <strong id="profileAiStatus">Normal</strong>
+                    <small id="profileAiDetail">AI summarizer not unlocked</small>
+                </article>
+                <article class="profile-card">
+                    <span>Progress</span>
+                    <strong id="profileProgress">0%</strong>
+                    <small id="profileProgressDetail">No announcements yet</small>
+                </article>
+            </div>
+            <div class="profile-lists">
+                <article class="profile-panel">
+                    <h3>Uploaded Notes</h3>
+                    <div id="profileUploadedList" class="profile-list"></div>
+                </article>
+                <article class="profile-panel">
+                    <h3>Purchased Notes</h3>
+                    <div id="profilePurchasedList" class="profile-list"></div>
+                </article>
+                <article class="profile-panel">
+                    <h3>Login Information</h3>
+                    <div id="profileLoginInfo" class="profile-list"></div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <div class="floating-actions" aria-label="Quick actions">
+        <button class="floating-button cr-only" type="button" id="quickCompose">
+            <i data-lucide="plus"></i>
+            <span>New</span>
+        </button>
+        <button class="floating-button icon-only" type="button" id="scrollTopBtn" aria-label="Scroll to top">
+            <i data-lucide="arrow-up"></i>
+        </button>
+    </div>
+
+    <button class="help-chat-launcher" type="button" id="helpChatLauncher" aria-label="Open AI Help Assistant">
+        <i data-lucide="message-circle"></i>
+    </button>
+
+    <div class="help-chat-panel" id="helpChatPanel" role="dialog" aria-label="Campus One Help Assistant">
+        <div class="help-chat-header">
+            <div>
+                <strong>Campus One Help Assistant</strong>
+                <span>Free for everyone</span>
+            </div>
+            <button type="button" class="help-chat-close" id="helpChatClose" aria-label="Close chat">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="help-chat-messages" id="helpChatMessages"></div>
+        <form class="help-chat-input-row" id="helpChatForm">
+            <input type="text" id="helpChatInput" placeholder="Ask about rooms, CR Board, notes..." autocomplete="off">
+            <button type="submit" class="help-chat-send" aria-label="Send message">
+                <i data-lucide="send"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="profile-backdrop" id="profileBackdrop"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

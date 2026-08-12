@@ -1,0 +1,20 @@
+{
+  "name": "Campus One",
+  "short_name": "Campus One",
+  "description": "Mobile-first campus announcements, CR board, notes marketplace, and AI study tools.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7fafc",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icons/campus-one-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"]
+}

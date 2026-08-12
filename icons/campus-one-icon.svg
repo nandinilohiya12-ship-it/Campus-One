@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Campus One">
+  <rect width="512" height="512" rx="96" fill="#0f172a"/>
+  <path d="M96 180 256 96l160 84-160 84L96 180Z" fill="#ffffff"/>
+  <path d="M150 222v88c0 34 48 62 106 62s106-28 106-62v-88l-106 56-106-56Z" fill="#0e9f8f"/>
+  <path d="M398 204v128" stroke="#f6c453" stroke-width="28" stroke-linecap="round"/>
+  <circle cx="398" cy="356" r="24" fill="#f6c453"/>
+  <path d="M178 404h156" stroke="#ffffff" stroke-width="24" stroke-linecap="round"/>
+</svg>
