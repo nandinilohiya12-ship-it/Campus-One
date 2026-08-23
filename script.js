@@ -413,6 +413,7 @@ async function boot() {
     bindEvents();
     renderAuthGate();
     hydrateRoomFromUrl();
+    await restoreSupabaseSession();
     await loadProfilesFromBackend();
     await syncBackendData();
     renderProfileSelectors();
@@ -430,6 +431,34 @@ async function boot() {
     setupScrollSpy();
     renderAiHistoryBar();
     refreshIcons();
+}
+
+async function restoreSupabaseSession() {
+    if (!supabaseClient) {
+        const local = loadActiveAccount();
+        if (local?.email) {
+            state.account = local;
+            state.loginStep = "room";
+        }
+        return;
+    }
+
+    const { data } = await supabaseClient.auth.getSession();
+    const session = data?.session;
+
+    if (session?.user) {
+        const fullName = session.user.user_metadata?.full_name || session.user.email;
+        state.account = { id: session.user.id, name: fullName, email: session.user.email };
+        state.loginStep = "room";
+    }
+
+    supabaseClient.auth.onAuthStateChange((_event, newSession) => {
+        if (!newSession?.user) {
+            return;
+        }
+        const fullName = newSession.user.user_metadata?.full_name || newSession.user.email;
+        state.account = { id: newSession.user.id, name: fullName, email: newSession.user.email };
+    });
 }
 
 async function loadProfilesFromBackend() {
@@ -1154,7 +1183,7 @@ function showAuthSlide() {
     renderAuthGate();
 }
 
-function submitAuth() {
+async function submitAuth() {
     const email = normalizeEmail(elements.loginEmail.value);
     const password = elements.loginPassword.value.trim();
     const name = elements.loginName.value.trim();
@@ -1169,6 +1198,59 @@ function submitAuth() {
         return;
     }
 
+    if (!supabaseClient) {
+        submitAuthLocalFallback(email, password, name);
+        return;
+    }
+
+    if (state.authMode === "signup") {
+        if (!name) {
+            showToast("Enter your full name.");
+            return;
+        }
+
+        showToast("Creating your account...");
+        const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name } }
+        });
+
+        if (error) {
+            showToast(error.message || "Could not create account.");
+            return;
+        }
+
+        if (!data.session) {
+            showToast("Account created. Check your email to confirm, then log in.");
+            state.authMode = "login";
+            renderAuthGate();
+            return;
+        }
+
+        state.account = { id: data.user.id, name, email, createdAt: Date.now() };
+        state.loginStep = "room";
+        renderAuthGate();
+        showToast("Account created. Now choose room access.");
+        return;
+    }
+
+    showToast("Logging in...");
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error) {
+        showToast(error.message || "No account found with this email and password.");
+        return;
+    }
+
+    const fullName = data.user.user_metadata?.full_name || elements.loginName.value.trim() || email;
+    state.account = { id: data.user.id, name: fullName, email, createdAt: Date.now() };
+    state.loginStep = "room";
+    renderAuthGate();
+    showToast("Logged in. Choose room access.");
+}
+
+function submitAuthLocalFallback(email, password, name) {
     if (state.authMode === "signup") {
         if (!name) {
             showToast("Enter your full name.");
@@ -1183,19 +1265,13 @@ function submitAuth() {
             return;
         }
 
-        state.account = {
-            id: `account-${createId()}`,
-            name,
-            email,
-            password,
-            createdAt: Date.now()
-        };
+        state.account = { id: `account-${createId()}`, name, email, password, createdAt: Date.now() };
         state.accounts.push(state.account);
         saveAccounts();
         saveActiveAccount();
         state.loginStep = "room";
         renderAuthGate();
-        showToast("Account created. Now choose room access.");
+        showToast("Account created (demo mode). Now choose room access.");
         return;
     }
 
@@ -1209,7 +1285,7 @@ function submitAuth() {
     saveActiveAccount();
     state.loginStep = "room";
     renderAuthGate();
-    showToast("Logged in. Choose room access.");
+    showToast("Logged in (demo mode). Choose room access.");
 }
 
 function updateRoleCopy() {
@@ -2518,6 +2594,52 @@ function formatHistoryDate(timestamp) {
 const IMPORTANCE_LABEL = { high: "High priority", medium: "Medium priority", low: "Lower priority" };
 const TOPIC_PRIORITY_LABEL = { "high weightage": "High weightage", "needs practice": "Needs practice", "revision": "Quick revision" };
 
+function closeSummaryPointPopup() {
+    const existing = document.querySelector(".summary-point-popup");
+    if (!existing) {
+        return;
+    }
+    existing.classList.remove("show");
+    window.setTimeout(() => existing.remove(), 180);
+    document.removeEventListener("keydown", handleSummaryPointPopupKeydown);
+}
+
+function handleSummaryPointPopupKeydown(event) {
+    if (event.key === "Escape") {
+        closeSummaryPointPopup();
+    }
+}
+
+function openSummaryPointPopup(point, importanceLabel, cardClassName) {
+    closeSummaryPointPopup();
+
+    const prioClass = (cardClassName || "").split(" ").find((cls) => cls.startsWith("prio-")) || "prio-amber";
+
+    const popup = document.createElement("div");
+    popup.className = "summary-point-popup";
+    popup.innerHTML = `
+        <div class="summary-point-popup-card ${prioClass}">
+            <div class="summary-point-popup-head">
+                <span class="summary-point-tag">${escapeHtml(importanceLabel || "Medium priority")}</span>
+                <button type="button" class="summary-point-popup-close" aria-label="Close"><i data-lucide="x"></i></button>
+            </div>
+            <p>${escapeHtml(point || "")}</p>
+        </div>
+    `;
+
+    popup.addEventListener("click", (event) => {
+        if (event.target === popup) {
+            closeSummaryPointPopup();
+        }
+    });
+    popup.querySelector(".summary-point-popup-close").addEventListener("click", closeSummaryPointPopup);
+
+    document.body.appendChild(popup);
+    refreshIcons();
+    window.setTimeout(() => popup.classList.add("show"), 10);
+    document.addEventListener("keydown", handleSummaryPointPopupKeydown);
+}
+
 function renderPersonalAiResult(ai, options = {}) {
     const summaryPoints = ai.summary_points || [];
     const studyPlan = ai.study_plan || [];
@@ -2535,9 +2657,10 @@ function renderPersonalAiResult(ai, options = {}) {
 
             <div class="summary-card-grid">
                 ${summaryPoints.map((item) => `
-                    <article class="summary-point-card ${PRIORITY_COLOR_CLASS[item.importance] || "prio-amber"}">
+                    <article class="summary-point-card ${PRIORITY_COLOR_CLASS[item.importance] || "prio-amber"}" tabindex="0" role="button" data-point="${escapeHtml(item.point)}" data-importance="${escapeHtml(IMPORTANCE_LABEL[item.importance] || "Medium priority")}">
                         <span class="summary-point-tag">${escapeHtml(IMPORTANCE_LABEL[item.importance] || "Medium priority")}</span>
                         <p>${escapeHtml(item.point)}</p>
+                        <span class="summary-point-expand"><i data-lucide="maximize-2"></i>Tap to read full point</span>
                     </article>
                 `).join("")}
             </div>
@@ -2624,6 +2747,17 @@ function renderPersonalAiResult(ai, options = {}) {
     if (gateBtn) {
         gateBtn.addEventListener("click", () => startPersonalQuiz({ title: options.title, subject: options.subject, content: rawContent }));
     }
+
+    elements.aiToolResult.querySelectorAll(".summary-point-card").forEach((card) => {
+        const open = () => openSummaryPointPopup(card.dataset.point, card.dataset.importance, card.className);
+        card.addEventListener("click", open);
+        card.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                open();
+            }
+        });
+    });
 
     const plannerForm = document.getElementById("dayPlannerForm");
     if (plannerForm) {
@@ -3229,7 +3363,10 @@ function closeProfileDrawer() {
     elements.profileSection.setAttribute("aria-hidden", "true");
 }
 
-function logoutUser() {
+async function logoutUser() {
+    if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+    }
     state.account = null;
     state.activeStudent = "";
     state.activeProfile = null;
@@ -3240,7 +3377,9 @@ function logoutUser() {
     elements.loginEmail.value = "";
     elements.loginPassword.value = "";
     elements.loginName.value = "";
-    elements.rememberMe.checked = false;
+    if (elements.rememberMe) {
+        elements.rememberMe.checked = false;
+    }
     closeProfileDrawer();
     elements.body.classList.add("login-active");
     elements.loginGate.classList.remove("hidden");
