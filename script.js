@@ -1297,22 +1297,22 @@ function updateRoleCopy() {
         : `${state.activeStudent} sees personal announcements, CR Board posts from ${getActiveCollege()}, and can buy, sell, or use AI notes tools.`;
 }
 
-function completeLogin(role) {
+async function completeLogin(role) {
     if (!state.account?.email) {
         showToast("Login or sign up first.");
         return;
     }
 
     elements.loginName.value = state.account.name;
-    const room = ensureRoomForLogin(role);
+    const room = await ensureRoomForLogin(role);
 
     if (!room) {
         return;
     }
 
-    const profile = role === "student"
-        ? getApprovedStudentProfile(room.code)
-        : createOrUpdateProfileFromLogin(role, room.code);
+    const profile = supabaseClient
+        ? state.profiles.find((item) => item.id === state.account.id)
+        : (role === "student" ? getApprovedStudentProfile(room.code) : createOrUpdateProfileFromLogin(role, room.code));
 
     if (!profile) {
         showToast("Enter your name, college, and room code first.");
@@ -1351,7 +1351,170 @@ function clearLoginPersonalFields(keepRoomCode = true) {
     elements.loginRoomCode.value = roomCode;
 }
 
-function ensureRoomForLogin(role) {
+async function hashCrPin(pin) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(String(pin || ""));
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function mapDbRoomToLocal(dbRoom) {
+    return {
+        code: dbRoom.code,
+        college: dbRoom.college,
+        batch: dbRoom.batch || "",
+        crLocked: Boolean(dbRoom.cr_locked),
+        crPinHash: dbRoom.cr_pin_hash,
+        createdBy: dbRoom.created_by,
+        createdAt: new Date(dbRoom.created_at).getTime()
+    };
+}
+
+async function ensureRoomForLogin(role) {
+    if (!supabaseClient) {
+        return ensureRoomForLoginLocalFallback(role);
+    }
+    return ensureRoomForLoginBackend(role);
+}
+
+async function ensureRoomForLoginBackend(role) {
+    const roomCode = normalizeRoomCode(elements.loginRoomCode.value);
+    const college = elements.loginCollege.value.trim();
+    const batch = elements.loginBatch.value.trim();
+    const crPin = elements.loginCrPin.value.trim();
+    const candidateName = getLoginCandidateName();
+
+    if (!roomCode) {
+        showToast("Enter room code first.");
+        return null;
+    }
+
+    if (!candidateName) {
+        showToast("Enter your name first.");
+        return null;
+    }
+
+    let room = state.rooms[roomCode];
+    if (!room) {
+        const { data } = await supabaseClient.from("rooms").select("*").eq("code", roomCode).maybeSingle();
+        if (data) {
+            room = mapDbRoomToLocal(data);
+            state.rooms[roomCode] = room;
+        }
+    }
+
+    if (role === "student") {
+        if (!room) {
+            showToast("Room not found. Ask your CR for the room code.");
+            return null;
+        }
+
+        if (room.crLocked) {
+            showToast("This room isn't accepting new students right now.");
+            return null;
+        }
+
+        const { data: profileData, error } = await supabaseClient
+            .from("profiles")
+            .upsert({
+                id: state.account.id,
+                full_name: candidateName,
+                role: "student",
+                college: room.college,
+                batch: room.batch,
+                room_code: roomCode
+            })
+            .select()
+            .single();
+
+        if (error) {
+            showToast(error.message || "Could not join room.");
+            return null;
+        }
+
+        upsertLocalProfileCache(profileData);
+        state.activeRoomCode = roomCode;
+        elements.loginName.value = profileData.full_name;
+        elements.loginCollege.value = room.college;
+        elements.loginBatch.value = room.batch;
+        return room;
+    }
+
+    if (!room && !college) {
+        showToast("Enter college to create the CR room.");
+        return null;
+    }
+
+    if (!crPin || crPin.length < 4) {
+        showToast("Set or enter a CR PIN with at least 4 characters.");
+        return null;
+    }
+
+    const pinHash = await hashCrPin(crPin);
+
+    if (!room) {
+        const { data, error } = await supabaseClient
+            .from("rooms")
+            .insert({ code: roomCode, college, batch, cr_pin_hash: pinHash, created_by: state.account.id })
+            .select()
+            .single();
+
+        if (error) {
+            showToast(error.message || "Could not create room.");
+            return null;
+        }
+
+        room = mapDbRoomToLocal(data);
+        state.rooms[roomCode] = room;
+    } else {
+        if (room.crPinHash !== pinHash) {
+            showToast("Wrong CR PIN for this room.");
+            return null;
+        }
+    }
+
+    const { data: crProfileData, error: crProfileError } = await supabaseClient
+        .from("profiles")
+        .upsert({
+            id: state.account.id,
+            full_name: candidateName,
+            role: "cr",
+            college: room.college,
+            batch: room.batch,
+            room_code: roomCode
+        })
+        .select()
+        .single();
+
+    if (crProfileError) {
+        showToast(crProfileError.message || "Could not open CR access.");
+        return null;
+    }
+
+    upsertLocalProfileCache(crProfileData);
+    state.activeRoomCode = roomCode;
+    return room;
+}
+
+function upsertLocalProfileCache(dbProfile) {
+    const mapped = {
+        id: dbProfile.id,
+        full_name: dbProfile.full_name,
+        role: dbProfile.role,
+        college: dbProfile.college,
+        batch: dbProfile.batch,
+        room_code: dbProfile.room_code
+    };
+    const existingIndex = state.profiles.findIndex((profile) => profile.id === mapped.id);
+    if (existingIndex >= 0) {
+        state.profiles[existingIndex] = mapped;
+    } else {
+        state.profiles.push(mapped);
+    }
+    renderProfileSelectors();
+}
+
+function ensureRoomForLoginLocalFallback(role) {
     const roomCode = normalizeRoomCode(elements.loginRoomCode.value);
     const college = elements.loginCollege.value.trim();
     const batch = elements.loginBatch.value.trim();
@@ -1557,7 +1720,7 @@ function renderRoomControls() {
     elements.copyRoomBtn.disabled = !roomCode;
 }
 
-function toggleCrFreeze() {
+async function toggleCrFreeze() {
     const roomCode = getActiveRoomCode();
     const room = state.rooms[roomCode];
 
@@ -1567,7 +1730,18 @@ function toggleCrFreeze() {
         return;
     }
 
-    room.crLocked = elements.freezeCrAccess.checked;
+    const nextLocked = elements.freezeCrAccess.checked;
+
+    if (supabaseClient) {
+        const { error } = await supabaseClient.from("rooms").update({ cr_locked: nextLocked }).eq("code", roomCode);
+        if (error) {
+            elements.freezeCrAccess.checked = room.crLocked;
+            showToast(error.message || "Could not update room lock.");
+            return;
+        }
+    }
+
+    room.crLocked = nextLocked;
     saveRooms();
     renderRoomControls();
     showToast(room.crLocked ? "CR access frozen for this room." : "CR access reopened for this room.");
