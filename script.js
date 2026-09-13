@@ -284,6 +284,13 @@ const elements = {
     loginStudent: document.getElementById("loginStudent"),
     loginCrBtn: document.getElementById("loginCrBtn"),
     loginStudentBtn: document.getElementById("loginStudentBtn"),
+    forgotPasswordLink: document.getElementById("forgotPasswordLink"),
+    forgotPasswordPanel: document.getElementById("forgotPasswordPanel"),
+    forgotPasswordBackBtn: document.getElementById("forgotPasswordBackBtn"),
+    forgotPasswordEmail: document.getElementById("forgotPasswordEmail"),
+    forgotPasswordSubmitBtn: document.getElementById("forgotPasswordSubmitBtn"),
+    forgotPasswordStatus: document.getElementById("forgotPasswordStatus"),
+    googleSignInBtn: document.getElementById("googleSignInBtn"),
     roleToggle: document.getElementById("roleToggle"),
     roleLabel: document.getElementById("roleLabel"),
     notifyBtn: document.getElementById("notifyBtn"),
@@ -714,6 +721,17 @@ function bindEvents() {
     document.querySelectorAll("[data-scroll-target]").forEach((button) => {
         button.addEventListener("click", () => scrollToSection(button.dataset.scrollTarget));
     });
+
+    elements.forgotPasswordLink.addEventListener("click", openForgotPasswordPanel);
+    elements.forgotPasswordBackBtn.addEventListener("click", closeForgotPasswordPanel);
+    elements.forgotPasswordSubmitBtn.addEventListener("click", submitForgotPassword);
+    elements.forgotPasswordEmail.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            submitForgotPassword();
+        }
+    });
+    elements.googleSignInBtn.addEventListener("click", submitGoogleSignIn);
 
     elements.roleToggle.addEventListener("click", openLoginGate);
     elements.notifyBtn.addEventListener("click", () => {
@@ -1286,6 +1304,65 @@ function submitAuthLocalFallback(email, password, name) {
     state.loginStep = "room";
     renderAuthGate();
     showToast("Logged in (demo mode). Choose room access.");
+}
+
+function openForgotPasswordPanel() {
+    elements.forgotPasswordEmail.value = elements.loginEmail.value.trim();
+    elements.forgotPasswordStatus.textContent = "";
+    elements.forgotPasswordPanel.classList.remove("hidden");
+    refreshIcons();
+}
+
+function closeForgotPasswordPanel() {
+    elements.forgotPasswordPanel.classList.add("hidden");
+}
+
+async function submitForgotPassword() {
+    const email = normalizeEmail(elements.forgotPasswordEmail.value);
+
+    if (!email || !email.includes("@")) {
+        showToast("Enter a valid email first.");
+        return;
+    }
+
+    if (!supabaseClient) {
+        elements.forgotPasswordStatus.textContent = "Password reset needs Supabase configured — this demo is running in local/offline mode.";
+        return;
+    }
+
+    elements.forgotPasswordSubmitBtn.disabled = true;
+    showToast("Sending reset link...");
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+    });
+
+    elements.forgotPasswordSubmitBtn.disabled = false;
+
+    if (error) {
+        elements.forgotPasswordStatus.textContent = error.message || "Could not send reset link. Try again.";
+        return;
+    }
+
+    elements.forgotPasswordStatus.textContent = `If an account exists for ${email}, a reset link is on its way.`;
+    showToast("Reset email sent.");
+}
+
+async function submitGoogleSignIn() {
+    if (!supabaseClient) {
+        showToast("Google sign-in needs Supabase configured with a Google provider enabled.");
+        return;
+    }
+
+    showToast("Redirecting to Google...");
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin }
+    });
+
+    if (error) {
+        showToast(error.message || "Could not start Google sign-in.");
+    }
 }
 
 function updateRoleCopy() {
