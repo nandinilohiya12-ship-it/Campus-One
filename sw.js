@@ -1,4 +1,4 @@
-const CACHE_NAME = "campus-one-pwa-v1";
+const CACHE_NAME = "campus-one-pwa-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -25,24 +25,30 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Network-first for same-origin app files, so every new deploy shows up
+// immediately. Falls back to the cached copy only when offline.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
+  const isSameOrigin = new URL(event.request.url).origin === self.location.origin;
 
-      return fetch(event.request).then((response) => {
+  if (!isSameOrigin) {
+    return;
+  }
+
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
         const copy = response.clone();
-        if (response.ok && new URL(event.request.url).origin === self.location.origin) {
+        if (response.ok) {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
         return response;
-      }).catch(() => caches.match("./index.html"));
-    })
+      })
+      .catch(() =>
+        caches.match(event.request).then((cached) => cached || caches.match("./index.html"))
+      )
   );
 });
