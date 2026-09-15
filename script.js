@@ -285,6 +285,12 @@ const elements = {
     loginCrBtn: document.getElementById("loginCrBtn"),
     loginStudentBtn: document.getElementById("loginStudentBtn"),
     forgotPasswordLink: document.getElementById("forgotPasswordLink"),
+    marketingLanding: document.getElementById("marketingLanding"),
+    landingSignInBtn: document.getElementById("landingSignInBtn"),
+    landingCreateRoomBtn: document.getElementById("landingCreateRoomBtn"),
+    landingJoinRoomBtn: document.getElementById("landingJoinRoomBtn"),
+    landingCreateRoomBtn2: document.getElementById("landingCreateRoomBtn2"),
+    landingJoinRoomBtn2: document.getElementById("landingJoinRoomBtn2"),
     forgotPasswordPanel: document.getElementById("forgotPasswordPanel"),
     forgotPasswordBackBtn: document.getElementById("forgotPasswordBackBtn"),
     forgotPasswordEmail: document.getElementById("forgotPasswordEmail"),
@@ -421,6 +427,9 @@ async function boot() {
     renderAuthGate();
     hydrateRoomFromUrl();
     await restoreSupabaseSession();
+    if (state.account) {
+        elements.body.classList.add("show-auth");
+    }
     await loadProfilesFromBackend();
     await syncBackendData();
     renderProfileSelectors();
@@ -732,6 +741,13 @@ function bindEvents() {
         }
     });
     elements.googleSignInBtn.addEventListener("click", submitGoogleSignIn);
+
+    [elements.landingSignInBtn, elements.landingCreateRoomBtn, elements.landingJoinRoomBtn,
+     elements.landingCreateRoomBtn2, elements.landingJoinRoomBtn2].forEach((btn) => {
+        if (btn) {
+            btn.addEventListener("click", revealAuthGate);
+        }
+    });
 
     elements.roleToggle.addEventListener("click", openLoginGate);
     elements.notifyBtn.addEventListener("click", () => {
@@ -1304,6 +1320,11 @@ function submitAuthLocalFallback(email, password, name) {
     state.loginStep = "room";
     renderAuthGate();
     showToast("Logged in (demo mode). Choose room access.");
+}
+
+function revealAuthGate() {
+    elements.body.classList.add("show-auth");
+    refreshIcons();
 }
 
 function openForgotPasswordPanel() {
