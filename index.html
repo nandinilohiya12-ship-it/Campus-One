@@ -1,928 +1,2540 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Campus One">
-    <title>Campus One</title>
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="icon" href="icons/campus-one-icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="icons/campus-one-icon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus One — Your batch, finally organized</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#131b3a;
+    --ink-soft:#2b3660;
+    --paper:#faf8f3;
+    --paper-dim:#f0ecdf;
+    --marigold:#ffb100;
+    --marigold-deep:#e69500;
+    --teal:#1f9e89;
+    --coral:#ff5a5f;
+    --line:#dcd6c4;
+    --purple:#7c5cff;
+    --pink:#ff5a8c;
+    --blue:#3b82f6;
+    --orange:#ff8c42;
+    --radius-card:14px;
+    --radius-badge:8px;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  p{margin:0;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+  a{color:inherit;text-decoration:none;}
+  img,svg{display:block;max-width:100%;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+
+  /* focus visibility */
+  a:focus-visible, button:focus-visible{
+    outline:3px solid var(--teal);
+    outline-offset:3px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(250,248,243,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    max-width:var(--maxw); margin:0 auto;
+  }
+  .logo{
+    display:flex; align-items:center; gap:9px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:19px;
+  }
+  .logo-mark{
+    width:26px;height:26px;border-radius:7px;
+    background:var(--ink);
+    position:relative;
+  }
+  .logo-mark::after{
+    content:"";
+    position:absolute; top:6px; left:6px;
+    width:8px; height:8px; border-radius:2px;
+    background:var(--marigold);
+  }
+  nav.links{display:flex; gap:32px; align-items:center;}
+  nav.links a{font-size:14.5px; font-weight:500; color:var(--ink-soft);}
+  nav.links a:hover{color:var(--ink);}
+  .nav-cta{
+    background:var(--ink); color:var(--paper);
+    padding:10px 18px; border-radius:var(--radius-badge);
+    font-size:14px; font-weight:600;
+  }
+  .nav-mobile-hide{display:flex;}
+  @media (max-width:760px){
+    .nav-mobile-hide{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:76px 0 90px;
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:56px;
+    align-items:center;
+  }
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr; gap:48px;}
+  }
+  .eyebrow-tag{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--paper-dim);
+    border:1px solid var(--line);
+    padding:6px 12px 6px 10px;
+    border-radius:999px;
+    font-size:13px; font-weight:500;
+    color:var(--ink-soft);
+    margin-bottom:22px;
+  }
+  .eyebrow-tag .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--teal);
+  }
+  .hero h1{
+    font-size:clamp(38px, 5.2vw, 62px);
+    line-height:1.03;
+    color:var(--ink);
+  }
+  .hero h1 .code{
+    background:var(--marigold);
+    padding:0 10px;
+    border-radius:6px;
+    display:inline-block;
+  }
+  .hero-sub{
+    margin-top:22px;
+    font-size:17.5px;
+    color:var(--ink-soft);
+    max-width:480px;
+  }
+  .hero-ctas{
+    margin-top:32px;
+    display:flex; gap:14px; flex-wrap:wrap;
+  }
+  .btn{
+    padding:14px 24px;
+    border-radius:var(--radius-badge);
+    font-weight:600;
+    font-size:15px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{background:var(--ink); color:var(--paper);}
+  .btn-primary:hover{box-shadow:0 8px 20px rgba(19,27,58,0.22);}
+  .btn-secondary{background:transparent; color:var(--ink); border:1.5px solid var(--ink);}
+  .hero-trust{
+    margin-top:26px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    display:flex; align-items:center; gap:10px;
+  }
+
+  /* Hero visual: stacked room card */
+  .hero-visual{position:relative; height:420px;}
+  .id-card{
+    position:absolute;
+    width:320px;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:18px;
+    padding:24px;
+    box-shadow:0 20px 50px rgba(19,27,58,0.28);
+  }
+  .id-card.back{
+    top:38px; left:46px;
+    background:var(--paper-dim);
+    color:var(--ink);
+    border:1px solid var(--line);
+    opacity:.9;
+    transform:rotate(-4deg);
+  }
+  .id-card.front{
+    top:0; left:0;
+    transform:rotate(3deg);
+    animation:settle .7s cubic-bezier(.2,.7,.3,1) both;
+  }
+  @keyframes settle{
+    from{transform:rotate(10deg) translateY(-14px); opacity:0;}
+    to{transform:rotate(3deg) translateY(0); opacity:1;}
+  }
+  .id-card .id-top{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    margin-bottom:26px;
+  }
+  .id-card .id-room{font-size:12px; opacity:.65; letter-spacing:.02em;}
+  .id-card .id-code{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:26px; font-weight:700;
+    margin-top:4px;
+  }
+  .id-pin{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--marigold); color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:700;
+    flex-shrink:0;
+  }
+  .id-card .id-post{
+    background:rgba(255,255,255,0.07);
+    border-radius:10px;
+    padding:14px;
+    font-size:13.5px;
+    line-height:1.5;
+  }
+  .id-card .id-post .tag{
+    display:inline-block;
+    background:var(--marigold); color:var(--ink);
+    font-size:10.5px; font-weight:700;
+    padding:2px 8px; border-radius:5px;
+    margin-bottom:8px;
+  }
+  .id-card .id-meta{
+    margin-top:16px;
+    display:flex; justify-content:space-between;
+    font-size:12px; opacity:.7;
+  }
+
+  /* ---------- SECTION SHARED ---------- */
+  section{padding:88px 0;}
+  .section-head{max-width:620px; margin-bottom:52px;}
+  .section-head h2{font-size:clamp(28px,3.4vw,38px); line-height:1.12;}
+  .section-head p{margin-top:14px; font-size:16.5px; color:var(--ink-soft);}
+  .rule{
+    border:none; border-top:1px dashed var(--line);
+    margin:0;
+  }
+
+  /* ---------- PROBLEM / SOLUTION ---------- */
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    border:1px solid var(--line);
+    border-radius:var(--radius-card);
+    overflow:hidden;
+  }
+  @media (max-width:760px){
+    .compare{grid-template-columns:1fr;}
+  }
+  .compare-col{padding:36px;}
+  .compare-col.messy{
+    background:var(--paper-dim);
+    border-right:1px dashed var(--line);
+  }
+  .compare-col.clean{background:var(--ink); color:var(--paper);}
+  .compare-label{
+    font-size:13px; font-weight:600; text-transform:none;
+    color:var(--ink-soft); margin-bottom:18px;
+  }
+  .compare-col.clean .compare-label{color:var(--marigold);}
+  .compare-list{list-style:none; margin:0; padding:0;}
+  .compare-list li{
+    display:flex; gap:11px;
+    padding:11px 0;
+    font-size:15px;
+    border-bottom:1px solid rgba(0,0,0,0.06);
+  }
+  .compare-col.clean .compare-list li{border-bottom:1px solid rgba(255,255,255,0.1);}
+  .compare-list li:last-child{border-bottom:none;}
+  .mark{flex-shrink:0; font-weight:700; margin-top:1px;}
+  .messy .mark{color:var(--coral);}
+  .clean .mark{color:var(--teal);}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:28px;
+  }
+  @media (max-width:820px){
+    .steps{grid-template-columns:1fr;}
+  }
+  .step{
+    padding:28px 24px 30px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius-card);
+    position:relative;
+  }
+  .step-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px; font-weight:700;
+    background:var(--ink); color:var(--paper);
+    width:30px; height:30px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:20px;
+  }
+  .step h3{font-size:19px; margin-bottom:9px;}
+  .step p{font-size:14.5px; color:var(--ink-soft);}
+
+  /* ---------- FEATURES BENTO ---------- */
+  .bento{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:150px;
+    gap:16px;
+  }
+  @media (max-width:900px){
+    .bento{grid-template-columns:repeat(2,1fr); grid-auto-rows:170px;}
+  }
+  @media (max-width:560px){
+    .bento{grid-template-columns:1fr; grid-auto-rows:auto;}
+  }
+  .feat{
+    border:1px solid var(--line);
+    border-radius:var(--radius-card);
+    padding:22px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    background:var(--paper);
+    position:relative;
+  }
+  .feat.big{grid-column:span 2; grid-row:span 2;}
+  @media (max-width:900px){ .feat.big{grid-column:span 2; grid-row:span 1;} }
+  @media (max-width:560px){ .feat.big{grid-column:span 1;} }
+  .feat.dark{background:var(--ink); color:var(--paper);}
+  .feat-corner{
+    position:absolute; top:14px; right:14px;
+    font-size:10px; font-weight:700; letter-spacing:.02em;
+    padding:3px 8px; border-radius:5px;
+    background:var(--marigold); color:var(--ink);
+  }
+  .feat-corner.live{background:var(--teal); color:var(--paper);}
+  .feat h3{font-size:16.5px; margin-bottom:6px;}
+  .feat.big h3{font-size:21px;}
+  .feat p{font-size:13.5px; color:var(--ink-soft);}
+  .feat.dark p{color:rgba(250,248,243,0.72);}
+
+  /* ---------- FOR CR / STUDENT ---------- */
+  .audience{
+    display:grid; grid-template-columns:1fr 1fr; gap:20px;
+  }
+  @media (max-width:760px){ .audience{grid-template-columns:1fr;} }
+  .aud-panel{
+    border-radius:20px;
+    padding:38px 34px;
+  }
+  .aud-panel.cr{background:var(--ink); color:var(--paper);}
+  .aud-panel.student{background:var(--paper-dim); border:1px solid var(--line);}
+  .aud-kicker{
+    font-size:13px; font-weight:600; color:var(--marigold); margin-bottom:10px;
+  }
+  .aud-panel.student .aud-kicker{color:var(--marigold-deep);}
+  .aud-panel h3{font-size:25px; margin-bottom:18px;}
+  .aud-list{list-style:none; margin:0; padding:0;}
+  .aud-list li{
+    padding:12px 0;
+    border-top:1px solid rgba(255,255,255,0.12);
+    font-size:14.5px;
+    display:flex; gap:10px;
+  }
+  .aud-panel.student .aud-list li{border-top:1px solid rgba(19,27,58,0.1);}
+  .aud-list li:first-child{border-top:none;}
+  .aud-list .n{
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    opacity:.5; font-size:13px;
+  }
+
+  /* ---------- MARKETPLACE / AI STRIP ---------- */
+  .strip{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+  }
+  @media (max-width:760px){ .strip{grid-template-columns:1fr;} }
+  .strip-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius-card);
+    padding:34px;
+    position:relative;
+    overflow:hidden;
+  }
+  .price-tag{
+    position:absolute; top:26px; right:-1px;
+    background:var(--marigold);
+    color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:15px;
+    padding:8px 16px 8px 20px;
+    border-radius:8px 0 0 8px;
+  }
+  .strip-card h3{font-size:20px; margin-bottom:10px; max-width:80%;}
+  .strip-card p{font-size:14.5px; color:var(--ink-soft); max-width:88%;}
+  .strip-chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;}
+  .chip{
+    font-size:12.5px; font-weight:500;
+    background:var(--paper-dim);
+    border:1px solid var(--line);
+    padding:5px 11px; border-radius:999px;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- TRUST ---------- */
+  .trust-row{
+    display:flex; flex-wrap:wrap; gap:14px;
+  }
+  .trust-item{
+    display:flex; align-items:center; gap:10px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:11px 18px;
+    font-size:14px; font-weight:500;
+  }
+  .trust-item .ic{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--teal); flex-shrink:0;
+  }
+
+  /* ---------- FINAL CTA ---------- */
+  .final-cta{
+    background:var(--ink); color:var(--paper);
+    border-radius:24px;
+    padding:64px 48px;
+    text-align:left;
+    position:relative;
+    overflow:hidden;
+  }
+  @media (max-width:600px){ .final-cta{padding:44px 26px;} }
+  .final-cta h2{
+    font-size:clamp(28px,4vw,42px);
+    max-width:560px;
+    line-height:1.1;
+  }
+  .final-cta p{
+    margin-top:16px; color:rgba(250,248,243,0.72);
+    font-size:16px; max-width:460px;
+  }
+  .final-cta .hero-ctas{margin-top:30px;}
+  .final-cta .btn-secondary{border-color:rgba(250,248,243,0.5); color:var(--paper);}
+  .final-cta .btn-primary{background:var(--marigold); color:var(--ink);}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:48px 0 40px;
+    border-top:1px solid var(--line);
+    margin-top:20px;
+  }
+  .footer-inner{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;
+  }
+  .footer-links{display:flex; gap:26px; font-size:13.5px; color:var(--ink-soft);}
+  .footer-note{font-size:13px; color:var(--ink-soft);}
+
+  /* ---------- APP LAYER: modals + dashboard ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(19,27,58,0.55);
+    display:none;
+    align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--paper);
+    border-radius:18px;
+    width:100%; max-width:420px;
+    padding:32px;
+    max-height:90vh; overflow-y:auto;
+    position:relative;
+    box-shadow:0 30px 70px rgba(19,27,58,0.35);
+  }
+  .modal-close{
+    position:absolute; top:18px; right:18px;
+    width:30px; height:30px; border-radius:8px;
+    background:var(--paper-dim); border:1px solid var(--line);
+    font-size:16px; color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal h3{font-size:21px; margin-bottom:6px;}
+  .modal .modal-sub{font-size:14px; color:var(--ink-soft); margin-bottom:22px;}
+  .modal-tabs{display:flex; gap:8px; margin-bottom:20px; background:var(--paper-dim); border-radius:10px; padding:4px;}
+  .modal-tab{flex:1; text-align:center; padding:9px 0; border-radius:7px; font-size:13.5px; font-weight:600; color:var(--ink-soft);}
+  .modal-tab.active{background:var(--ink); color:var(--paper);}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:13px; font-weight:600; margin-bottom:7px; color:var(--ink-soft);}
+  .field input, .field textarea, .field select{
+    width:100%; padding:12px 13px;
+    border:1px solid var(--line); border-radius:9px;
+    font-family:'Inter',sans-serif; font-size:14.5px;
+    background:var(--paper); color:var(--ink);
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{
+    outline:none; border-color:var(--ink);
+  }
+  .field-hint{font-size:12px; color:var(--ink-soft); margin-top:6px;}
+  .modal .btn{width:100%; justify-content:center; margin-top:6px;}
+  .form-msg{
+    font-size:13.5px; padding:11px 13px; border-radius:8px;
+    margin-bottom:16px; display:none;
+  }
+  .form-msg.error{display:block; background:rgba(255,90,95,0.1); color:#c73338; border:1px solid rgba(255,90,95,0.3);}
+  .form-msg.success{display:block; background:rgba(31,158,137,0.1); color:#157763; border:1px solid rgba(31,158,137,0.3);}
+  .form-msg.info{display:block; background:var(--paper-dim); color:var(--ink-soft); border:1px solid var(--line);}
+  /* ---- toast popup (e.g. wrong password) ---- */
+  #toastStack{
+    position:fixed; top:18px; left:50%; transform:translateX(-50%);
+    z-index:9999; display:flex; flex-direction:column; gap:10px;
+    align-items:center; pointer-events:none;
+  }
+  .toast{
+    pointer-events:auto;
+    display:flex; align-items:center; gap:10px;
+    font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+    padding:13px 18px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.18);
+    background:#c73338; color:#fff; max-width:min(90vw,420px);
+    opacity:0; transform:translateY(-14px); transition:opacity .22s ease, transform .22s ease;
+  }
+  .toast.show{opacity:1; transform:translateY(0);}
+  .toast.toast-success{background:#157763;}
+  .toast .toast-close{
+    margin-left:auto; background:none; border:none; color:inherit;
+    font-size:15px; cursor:pointer; opacity:.8; line-height:1; padding:2px;
+  }
+  .toast .toast-close:hover{opacity:1;}
+  @keyframes fieldShake{
+    10%,90%{transform:translateX(-1px);}
+    20%,80%{transform:translateX(2px);}
+    30%,50%,70%{transform:translateX(-4px);}
+    40%,60%{transform:translateX(4px);}
+  }
+  .field-shake{animation:fieldShake .45s ease;}
+  .field input.field-error{border-color:#c73338 !important;}
+  .room-code-display{
+    background:var(--ink); color:var(--paper);
+    border-radius:12px; padding:18px; text-align:center;
+    margin-bottom:18px;
+  }
+  .room-code-display .rc-label{font-size:12px; opacity:.65; margin-bottom:6px;}
+  .room-code-display .rc-code{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; letter-spacing:.04em;}
+
+  /* Full-screen app / dashboard view */
+  #appView{display:none;}
+  #appView.open{display:block;}
+  #appView ~ *{display:none;}
+  body.app-mode > header.nav ~ *:not(#appView){display:none;}
+  body.app-mode #appView{display:block;}
+  .app-shell{min-height:100vh; background:var(--paper);}
+  .app-header{
+    background:var(--ink); color:var(--paper);
+    padding:34px 0 28px;
+  }
+  .app-header .wrap{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;}
+  .app-header .rc-label{font-size:12.5px; opacity:.6;}
+  .app-header .rc-code{font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin-top:4px;}
+  .role-badge{
+    display:inline-block; margin-top:10px;
+    background:var(--marigold); color:var(--ink);
+    font-size:12px; font-weight:700; padding:4px 10px; border-radius:6px;
+  }
+  .app-body{padding:40px 0 80px;}
+  .composer{
+    border:1px solid var(--line); border-radius:14px; padding:24px;
+    margin-bottom:30px; background:var(--paper-dim);
+  }
+  .composer h3{font-size:16px; margin-bottom:16px;}
+  .composer-row{display:flex; gap:12px; flex-wrap:wrap;}
+  .composer-row .field{flex:1; min-width:140px;}
+  .ann-list{display:flex; flex-direction:column; gap:14px;}
+  .ann-card{
+    border:1px solid var(--line); border-radius:12px; padding:18px 20px;
+    background:var(--paper);
+  }
+  .ann-top{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+  .ann-badges{display:flex; gap:7px; align-items:center;}
+  .ann-cat{font-size:11px; font-weight:700; padding:3px 9px; border-radius:6px; background:var(--paper-dim); color:var(--ink-soft);}
+  .ann-cat.cat-academic{background:rgba(59,130,246,0.14); color:#2563eb;}
+  .ann-cat.cat-placement{background:rgba(124,92,255,0.14); color:#6d3ff2;}
+  .ann-cat.cat-event{background:rgba(255,90,140,0.14); color:#e0356e;}
+  .ann-cat.cat-club{background:rgba(255,140,66,0.16); color:#d9701f;}
+  .ann-cat.cat-admin{background:rgba(43,54,96,0.1); color:var(--ink-soft);}
+  .ann-cat.cat-general{background:rgba(31,158,137,0.14); color:#157763;}
+  .ann-cat.cat-deadline{background:rgba(255,90,95,0.14); color:#c73338;}
+  .ann-cat.priority-urgent{background:rgba(255,90,95,0.14); color:#c73338;}
+  .ann-cat.priority-normal{background:rgba(31,158,137,0.12); color:#157763;}
+  .ann-date{font-size:12px; color:var(--ink-soft);}
+  .ann-body{font-size:14.5px; line-height:1.55;}
+  .ann-empty{
+    text-align:center; padding:50px 20px; color:var(--ink-soft);
+    border:1px dashed var(--line); border-radius:14px; font-size:14.5px;
+  }
+  .app-logout{
+    background:transparent; border:1px solid rgba(250,248,243,0.4);
+    color:var(--paper); padding:9px 16px; border-radius:8px; font-size:13.5px; font-weight:600;
+  }
+  .spinner{
+    display:inline-block; width:15px; height:15px;
+    border:2px solid rgba(255,255,255,0.35); border-top-color:#fff;
+    border-radius:50%; animation:spin .7s linear infinite; margin-right:8px; vertical-align:-2px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- DROPDOWN MENUS (account menu etc.) ---------- */
+  .dropdown{position:relative; display:inline-block;}
+  .dropdown-trigger{
+    display:flex; align-items:center; gap:8px;
+    background:var(--paper-dim); border:1px solid var(--line);
+    padding:8px 14px; border-radius:999px;
+    font-size:13.5px; font-weight:500; color:var(--ink);
+    cursor:pointer; user-select:none;
+  }
+  .dropdown-trigger:hover{border-color:var(--ink-soft);}
+  .dropdown-avatar{
+    width:22px; height:22px; border-radius:50%;
+    background:linear-gradient(135deg, var(--purple), var(--pink));
+    color:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; flex-shrink:0;
+  }
+  .dropdown-caret{font-size:10px; color:var(--ink-soft); transition:transform .15s ease;}
+  .dropdown.open .dropdown-caret{transform:rotate(180deg);}
+  .dropdown-menu{
+    position:absolute; top:calc(100% + 8px); right:0;
+    background:var(--paper); border:1px solid var(--line);
+    border-radius:12px; min-width:190px;
+    box-shadow:0 14px 34px rgba(19,27,58,0.16);
+    padding:6px; z-index:60;
+    display:none; flex-direction:column;
+  }
+  .dropdown.open .dropdown-menu{display:flex;}
+  .dropdown-item{
+    text-align:left; width:100%;
+    padding:10px 12px; border-radius:8px;
+    font-size:14px; color:var(--ink); background:transparent;
+  }
+  .dropdown-item:hover{background:var(--paper-dim);}
+  .dropdown-item.danger{color:var(--coral);}
+  .dropdown-divider{height:1px; background:var(--line); margin:5px 4px;}
+  .dropdown-email{
+    padding:8px 12px 10px; font-size:12px; color:var(--ink-soft);
+    border-bottom:1px solid var(--line); margin-bottom:4px;
+  }
+
+  /* forgot-password link + inline panel inside auth modal */
+  .auth-forgot-link{
+    display:block; text-align:right; font-size:13px; color:var(--ink-soft);
+    margin:-8px 0 16px; text-decoration:underline; text-underline-offset:2px;
+  }
+  .auth-forgot-link:hover{color:var(--ink);}
+  .auth-back-link{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:13px; color:var(--ink-soft); margin-bottom:16px; text-decoration:underline; text-underline-offset:2px;
+  }
+
+  /* ---------- APP TABS + PANELS ---------- */
+  .app-tabs{
+    display:flex; gap:6px; overflow-x:auto;
+    padding-bottom:16px; margin-top:4px;
+  }
+  .app-tab{
+    background:transparent; border:1px solid rgba(250,248,243,0.2);
+    color:rgba(250,248,243,0.75);
+    padding:9px 16px; border-radius:999px;
+    font-size:13.5px; font-weight:500; white-space:nowrap;
+  }
+  .app-tab.active{background:var(--marigold); color:var(--ink); border-color:var(--marigold); font-weight:700;}
+  .app-panel{display:none;}
+  .app-panel.active{display:block;}
+  .panel-block{
+    border:1px solid var(--line); border-radius:14px; padding:24px;
+    margin-top:24px; background:var(--paper);
+  }
+  .panel-block h3{font-size:16px; margin-bottom:16px;}
+  .stat-row{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
+  }
+  @media (max-width:700px){ .stat-row{grid-template-columns:repeat(2,1fr);} }
+  .stat-card{
+    border:1px solid var(--line); border-top:3px solid var(--ink); border-radius:12px; padding:18px;
+    background:var(--paper);
+  }
+  .stat-card:nth-child(1){border-top-color:var(--blue);}
+  .stat-card:nth-child(2){border-top-color:var(--coral);}
+  .stat-card:nth-child(3){border-top-color:var(--marigold);}
+  .stat-card:nth-child(4){border-top-color:var(--teal);}
+  .stat-num{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700;}
+  .stat-card:nth-child(1) .stat-num{color:var(--blue);}
+  .stat-card:nth-child(2) .stat-num{color:var(--coral);}
+  .stat-card:nth-child(3) .stat-num{color:var(--marigold-deep);}
+  .stat-card:nth-child(4) .stat-num{color:var(--teal);}
+  .stat-label{font-size:12.5px; color:var(--ink-soft); margin-top:4px;}
+  .manage-row{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px;
+  }
+  .toggle-row{
+    display:flex; align-items:center; gap:10px;
+    font-size:14px; margin:14px 0; cursor:pointer;
+  }
+  .toggle-row input{width:17px; height:17px; accent-color:var(--ink);}
+  .feed-filters{
+    display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;
+  }
+  .feed-filters select{
+    padding:9px 12px; border:1px solid var(--line); border-radius:8px;
+    font-size:13.5px; background:var(--paper); color:var(--ink);
+  }
+  .cat-bar-row{display:flex; align-items:center; gap:12px; margin-bottom:12px; font-size:13.5px;}
+  .cat-bar-row .cat-name{width:90px; flex-shrink:0; color:var(--ink-soft);}
+  .cat-bar-track{flex:1; height:8px; border-radius:5px; background:var(--paper-dim); overflow:hidden;}
+  .cat-bar-fill{height:100%; background:var(--teal); border-radius:5px;}
+  .cat-bar-count{width:26px; text-align:right; flex-shrink:0; font-weight:600;}
+  .degrade-note{
+    font-size:13px; color:var(--ink-soft); background:var(--paper-dim);
+    border:1px dashed var(--line); border-radius:10px; padding:12px 14px; margin-bottom:16px;
+  }
+  .pd-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .pd-row:last-child{border-bottom:none;}
+  .pd-label{color:var(--ink-soft);}
+
+  /* ---------- AI TOOLS (premium, demo-mode) ---------- */
+  .ai-tool-box{border-color:var(--ink);}
+  .ai-tool-header{display:flex; justify-content:space-between; align-items:flex-start; gap:12px;}
+  .premium-chip{
+    display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.03em;
+    background:var(--marigold); color:var(--ink);
+    padding:3px 8px; border-radius:5px; vertical-align:middle; margin-left:6px;
+  }
+  .premium-chip.unlocked{background:var(--teal); color:var(--paper); margin-left:0; margin-right:10px;}
+  .ai-result-block{
+    border:1px solid var(--line); border-radius:12px; padding:18px;
+    margin-bottom:14px; background:var(--paper-dim);
+  }
+  .ai-result-block h4{font-size:14.5px; margin-bottom:12px; font-family:'Space Grotesk',sans-serif;}
+  .ai-summary-item{
+    display:flex; gap:10px; padding:8px 0; font-size:14px; align-items:flex-start;
+    border-bottom:1px solid var(--line);
+  }
+  .ai-summary-item:last-child{border-bottom:none;}
+  .ai-summary-tag{
+    flex-shrink:0; font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:5px;
+    background:var(--paper); border:1px solid var(--line); color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .ai-summary-tag.concept{background:rgba(31,158,137,0.14); color:#157763; border-color:transparent;}
+  .ai-summary-tag.definition{background:rgba(255,177,0,0.16); color:var(--marigold-deep); border-color:transparent;}
+  .ai-summary-tag.data{background:rgba(255,90,95,0.12); color:#c73338; border-color:transparent;}
+  .plan-day{
+    display:flex; gap:14px; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;
+  }
+  .plan-day:last-child{border-bottom:none;}
+  .plan-day .pd-tag{
+    flex-shrink:0; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px;
+    background:var(--ink); color:var(--paper); padding:3px 9px; border-radius:6px; height:fit-content;
+  }
+  .quiz-item{padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .quiz-item:last-child{border-bottom:none;}
+  .quiz-q{font-weight:600; margin-bottom:8px;}
+  .quiz-option{
+    display:block; padding:8px 10px; margin-bottom:6px;
+    border:1px solid var(--line); border-radius:8px; font-size:13.5px;
+    cursor:pointer; background:var(--paper);
+  }
+  .quiz-option:hover{border-color:var(--ink-soft);}
+  .quiz-option input{margin-right:8px; accent-color:var(--ink);}
+  .quiz-feedback{font-size:13px; margin-top:6px; color:var(--ink-soft);}
+  .quiz-item.quiz-correct{background:rgba(31,158,137,0.06); border-radius:10px; padding:12px 10px;}
+  .quiz-item.quiz-correct .quiz-feedback{color:#157763; font-weight:600;}
+  .quiz-item.quiz-incorrect{background:rgba(255,90,95,0.06); border-radius:10px; padding:12px 10px;}
+  .quiz-item.quiz-incorrect .quiz-feedback{color:#c73338; font-weight:600;}
+  .quiz-score{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700;}
+
+  /* ---------- DAY PLANNER ---------- */
+  .planner-block{
+    display:flex; gap:14px; padding:12px 0; border-bottom:1px solid var(--line); font-size:14px;
+  }
+  .planner-block:last-child{border-bottom:none;}
+  .planner-time{
+    flex-shrink:0; width:118px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- AI STUDIO (combined premium hub) ---------- */
+  .ai-studio-tab{position:relative;}
+  .ai-studio-hero{
+    background:linear-gradient(135deg, var(--ink) 0%, #241b4a 100%);
+    color:var(--paper);
+    border-radius:18px;
+    padding:32px;
+    margin-bottom:24px;
+  }
+  .ai-studio-hero h3{font-size:23px; margin:10px 0 8px; font-family:'Space Grotesk',sans-serif;}
+  .ai-studio-hero p{font-size:14.5px; color:rgba(250,248,243,0.78); max-width:560px; margin:0 0 20px;}
+  .premium-chip.studio{
+    background:linear-gradient(90deg, var(--marigold), #ff8fab);
+    color:var(--ink); font-size:11px; padding:4px 10px;
+  }
+  .studio-trust{margin-bottom:22px;}
+  .studio-trust .trust-item{
+    border-color:rgba(250,248,243,0.25); color:rgba(250,248,243,0.85);
+    background:rgba(250,248,243,0.06);
+  }
+  .studio-trust .ic{background:var(--teal);}
+  #studioUnlockedRow .premium-chip.unlocked{font-size:13px; padding:8px 16px;}
+  .studio-subtabs{
+    display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;
+  }
+  .studio-subtab{
+    background:var(--paper-dim); border:1px solid var(--line);
+    padding:10px 18px; border-radius:999px; font-size:13.5px; font-weight:600; color:var(--ink-soft);
+  }
+  .studio-subtab.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .studio-subpanel{display:none;}
+  .studio-subpanel.active{display:block;}
+
+  /* extra breathing room throughout the dashboard */
+  .app-body{padding:48px 0 110px;}
+  .panel-block{margin-top:28px; padding:28px;}
+  .composer{padding:28px;}
+</style>
 </head>
 <body>
-    <div class="marketing-landing" id="marketingLanding">
-        <header class="landing-nav">
-            <div class="landing-nav-inner">
-                <a class="landing-brand" href="#marketingTop">
-                    <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
-                    <strong>Campus One</strong>
-                </a>
-                <nav class="landing-links" aria-label="Marketing sections">
-                    <a href="#landingFeatures">Features</a>
-                    <a href="#landingForCrs">For CRs</a>
-                    <a href="#landingNotesAi">Notes &amp; AI</a>
-                    <a href="#landingTrust">Trust</a>
-                </nav>
-                <button class="landing-signin-btn" type="button" id="landingSignInBtn">Sign in</button>
-            </div>
-        </header>
 
-        <section class="landing-hero" id="marketingTop">
-            <div class="landing-hero-copy">
-                <span class="landing-badge"><span class="dot"></span>Built with CRs, for every batch</span>
-                <h1>Your batch,<br>finally organized<br><mark>for real.</mark></h1>
-                <p>Campus One replaces the WhatsApp group nobody can keep up with — one verified room per batch, announcements that get read and answered, and notes that don't disappear when seniors graduate.</p>
-                <div class="landing-cta-row">
-                    <button class="primary-button" type="button" id="landingCreateRoomBtn">
-                        <span>Create your room</span>
-                    </button>
-                    <button class="ghost-button" type="button" id="landingJoinRoomBtn">
-                        <span>Join with a room code</span>
-                    </button>
-                </div>
-            </div>
-            <div class="landing-hero-visual">
-                <div class="mock-room-card">
-                    <div class="mock-room-top">
-                        <span>ROOM · MIT-WPU-CSE24-A</span>
-                        <span class="mock-cr-badge">CR</span>
-                    </div>
-                    <div class="mock-room-code">#4F9K2R</div>
-                    <div class="mock-urgent-block">
-                        <span class="mock-urgent-tag">URGENT</span>
-                        <p>Viva rescheduled to Fri 10am, Lab 3. Reply attending/not by tonight.</p>
-                    </div>
-                    <div class="mock-room-stats">
-                        <span>58/61 read</span>
-                        <span>42 responded</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+<div id="toastStack" aria-live="polite"></div>
 
-        <section class="landing-compare" id="landingFeatures">
-            <h2>The group chat wasn't built for this.</h2>
-            <p class="landing-compare-sub">It works fine for memes. It's a bad system for announcements that matter.</p>
-            <div class="compare-grid">
-                <div class="compare-col compare-col-light">
-                    <h3>A WhatsApp group, day 40</h3>
-                    <ul>
-                        <li><i data-lucide="x"></i><span>Viva timing buried under 200 unread messages</span></li>
-                        <li><i data-lucide="x"></i><span>No way to know who's actually seen it</span></li>
-                        <li><i data-lucide="x"></i><span>"Attending?" answered by 6 people out of 60</span></li>
-                        <li><i data-lucide="x"></i><span>Senior's notes gone the day the chat got deleted</span></li>
-                        <li><i data-lucide="x"></i><span>Anyone can post as anyone — no real CR verification</span></li>
-                    </ul>
-                </div>
-                <div class="compare-col compare-col-dark">
-                    <h3>A Campus One room</h3>
-                    <ul>
-                        <li><i data-lucide="check"></i><span>One structured post, pinned, categorized, hard to miss</span></li>
-                        <li><i data-lucide="check"></i><span>Read receipts — CR sees exactly who's seen it</span></li>
-                        <li><i data-lucide="check"></i><span>Built-in attending / maybe / not-attending responses</span></li>
-                        <li><i data-lucide="check"></i><span>Notes live in the room's marketplace, permanently</span></li>
-                        <li><i data-lucide="check"></i><span>One verified CR per room, PIN-protected</span></li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <section class="landing-final-cta" id="landingForCrs">
-            <h2>Ready to get your batch out of group-chat chaos?</h2>
-            <div class="landing-cta-row">
-                <button class="primary-button" type="button" id="landingCreateRoomBtn2">
-                    <span>Create your room</span>
-                </button>
-                <button class="ghost-button" type="button" id="landingJoinRoomBtn2">
-                    <span>Join with a room code</span>
-                </button>
-            </div>
-        </section>
-    </div>
-
-    <section class="login-gate" id="loginGate" aria-label="Campus One login">
-        <div class="login-panel">
-            <div class="login-brand-strip">
-                <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
-                <div>
-                    <strong>Campus One</strong>
-                    <small>Secure rooms, smart notes, CR updates</small>
-                </div>
-            </div>
-
-            <div class="login-slider" id="loginSlider">
-                <div class="login-slide auth-slide" aria-label="Account login">
-                    <div class="section-title">
-                        <p class="eyebrow">Step 1 of 2</p>
-                        <h1>Sign in</h1>
-                        <p class="login-copy">Create your Campus One account once, then use your email and password whenever you come back.</p>
-                    </div>
-
-                    <div class="auth-mode" aria-label="Login mode">
-                        <button class="auth-mode-btn active" type="button" id="authLoginTab">Login</button>
-                        <button class="auth-mode-btn" type="button" id="authSignupTab">Sign up</button>
-                    </div>
-
-                    <div class="form-grid auth-grid">
-                        <div class="signup-only">
-                            <label for="loginName">Full name</label>
-                            <input type="text" id="loginName" placeholder="Enter your full name">
-                        </div>
-                        <div>
-                            <label for="loginEmail">Email</label>
-                            <input type="email" id="loginEmail" placeholder="you@college.edu">
-                        </div>
-                        <div>
-                            <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" placeholder="Minimum 6 characters">
-                        </div>
-                    </div>
-
-                    <label class="remember-row" for="rememberMe">
-                        <input type="checkbox" id="rememberMe">
-                        <span>Remember me on this device</span>
-                    </label>
-
-                    <button class="link-button forgot-password-link" type="button" id="forgotPasswordLink">Forgot password?</button>
-
-                    <button class="primary-button auth-submit" type="button" id="authSubmitBtn">
-                        <i data-lucide="log-in"></i>
-                        <span>Login</span>
-                    </button>
-
-                    <div class="auth-divider" role="presentation"><span>or continue with</span></div>
-
-                    <button class="google-button" type="button" id="googleSignInBtn">
-                        <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.5 6 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.5 6 29.5 4 24 4c-7.6 0-14.1 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.3 0 10.1-2 13.7-5.3l-6.3-5.3C29.4 35 26.8 36 24 36c-5.3 0-9.6-3.3-11.3-8l-6.5 5C9.8 39.6 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.3 5.3C39.9 36.9 44 31 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
-                        <span>Continue with Google</span>
-                    </button>
-
-                    <div class="login-feature-row" aria-label="Campus One features">
-                        <span><i data-lucide="shield-check"></i> CR locked</span>
-                        <span><i data-lucide="notebook-tabs"></i> Notes market</span>
-                        <span><i data-lucide="sparkles"></i> AI tools</span>
-                    </div>
-                </div>
-
-                <div class="login-slide room-login-fields" id="roomLoginFields" aria-label="Room access">
-                    <div class="room-slide-head">
-                        <button class="icon-button" type="button" id="backToAuthBtn" aria-label="Back to login">
-                            <i data-lucide="arrow-left"></i>
-                        </button>
-                        <div class="section-title compact-title">
-                            <p class="eyebrow">Step 2 of 2</p>
-                            <h2>Enter room details</h2>
-                            <p class="login-copy">Choose CR to create/manage a room, or Student to join an existing class room.</p>
-                        </div>
-                    </div>
-
-                    <div class="account-chip" id="activeAccountChip"></div>
-
-                    <div class="form-grid">
-                        <div>
-                            <label for="loginCollege">College</label>
-                            <input type="text" id="loginCollege" placeholder="Enter college name">
-                        </div>
-                        <div>
-                            <label for="loginBatch">Batch</label>
-                            <input type="text" id="loginBatch" placeholder="Example: CSE 2026">
-                        </div>
-                        <div>
-                            <label for="loginRoomCode">Room code</label>
-                            <input type="text" id="loginRoomCode" placeholder="Example: CSE-2026-A">
-                        </div>
-                        <div>
-                            <label for="loginCrPin">CR PIN</label>
-                            <input type="password" id="loginCrPin" placeholder="Required for CR access">
-                        </div>
-                    </div>
-
-                    <label for="loginStudent" class="visually-hidden">Saved profiles</label>
-                    <select id="loginStudent" class="hidden" tabindex="-1" aria-hidden="true"></select>
-
-                    <div class="login-actions">
-                        <button class="primary-button" type="button" id="loginCrBtn">
-                            <i data-lucide="shield-check"></i>
-                            <span>Continue as CR</span>
-                        </button>
-                        <button class="ghost-button" type="button" id="loginStudentBtn">
-                            <i data-lucide="graduation-cap"></i>
-                            <span>Continue as Student</span>
-                        </button>
-                    </div>
-
-                    <div class="login-map">
-                        <div>
-                            <strong>CR Panel</strong>
-                            <span>Create a room, set the CR PIN, add students, and freeze CR access.</span>
-                        </div>
-                        <div>
-                            <strong>Student Board</strong>
-                            <span>Join with the room code to see shared announcements, CR posts, and notes.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="forgot-password-panel hidden" id="forgotPasswordPanel" aria-label="Reset your password">
-                <button class="icon-button" type="button" id="forgotPasswordBackBtn" aria-label="Back to login">
-                    <i data-lucide="arrow-left"></i>
-                </button>
-                <div class="section-title compact-title">
-                    <p class="eyebrow">Account recovery</p>
-                    <h2>Reset your password</h2>
-                    <p class="login-copy">Enter the email on your account and we'll send a reset link.</p>
-                </div>
-                <div class="form-grid">
-                    <div>
-                        <label for="forgotPasswordEmail">Email</label>
-                        <input type="email" id="forgotPasswordEmail" placeholder="you@college.edu">
-                    </div>
-                </div>
-                <button class="primary-button full-width" type="button" id="forgotPasswordSubmitBtn">
-                    <i data-lucide="send"></i>
-                    <span>Send reset link</span>
-                </button>
-                <p class="recipient-note" id="forgotPasswordStatus"></p>
-            </div>
-        </div>
-    </section>
-
-    <nav class="floating-tabs" aria-label="Campus One navigation">
-        <a class="brand-tab" href="#today" aria-label="Campus One home">
-            <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
-            <span>
-                <strong>Campus One</strong>
-                <small>Academic command center</small>
-            </span>
-        </a>
-
-        <div class="tab-track" role="tablist" aria-label="Sections">
-            <button class="nav-tab active" type="button" data-scroll-target="today">
-                <i data-lucide="layout-dashboard"></i>
-                <span>Today</span>
-            </button>
-            <button class="nav-tab" type="button" data-scroll-target="notesHub">
-                <i data-lucide="notebook-tabs"></i>
-                <span>Notes</span>
-            </button>
-            <button class="nav-tab" type="button" data-scroll-target="crBoard">
-                <i data-lucide="clipboard-list"></i>
-                <span>CR Board</span>
-            </button>
-            <button class="nav-tab cr-only" type="button" data-scroll-target="compose">
-                <i data-lucide="send"></i>
-                <span>Compose</span>
-            </button>
-            <button class="nav-tab" type="button" data-scroll-target="feed">
-                <i data-lucide="message-square-text"></i>
-                <span>Feed</span>
-            </button>
-            <button class="nav-tab" type="button" data-scroll-target="planner">
-                <i data-lucide="calendar-days"></i>
-                <span>Planner</span>
-            </button>
-            <button class="nav-tab" type="button" data-scroll-target="insights">
-                <i data-lucide="chart-no-axes-combined"></i>
-                <span>Insights</span>
-            </button>
-        </div>
-
-        <div class="nav-actions">
-            <button class="mode-switch" type="button" id="roleToggle">
-                <i data-lucide="users-round"></i>
-                <span id="roleLabel">Switch Login</span>
-            </button>
-            <button class="icon-button notification-button" type="button" id="notifyBtn" aria-label="Open unread announcements">
-                <i data-lucide="bell"></i>
-                <span id="notificationBubble">0</span>
-            </button>
-            <button class="profile-nav-button" type="button" id="profileNavBtn" aria-label="Open profile">
-                <span id="profileNavAvatar">CO</span>
-            </button>
-        </div>
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo"><span class="logo-mark"></span>Campus One</div>
+    <nav class="links nav-mobile-hide">
+      <a href="#features">Features</a>
+      <a href="#audience">For CRs</a>
+      <a href="#marketplace">Notes &amp; AI</a>
+      <a href="#trust">Trust</a>
     </nav>
-
-    <main>
-        <section class="app-section today-section" id="today">
-            <div class="hero-board">
-                <div class="hero-copy">
-                    <p class="eyebrow">Campus communication without chaos</p>
-                    <h1 id="greetingTitle">CR Mission Control</h1>
-                    <p id="greetingSub">Send verified updates to the right students, track attention, and keep every class aligned.</p>
-                    <div class="hero-controls">
-                        <div class="compact-field active-identity-card">
-                            <span>Signed in</span>
-                            <strong id="studentSection">Campus One User</strong>
-                        </div>
-                        <button class="primary-button cr-only" type="button" data-scroll-target="compose">
-                            <i data-lucide="sparkles"></i>
-                            <span>New Broadcast</span>
-                        </button>
-                        <button class="ghost-button" type="button" data-scroll-target="notesHub">
-                            <i data-lucide="upload-cloud"></i>
-                            <span>Upload Notes</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="live-brief" aria-label="Live campus brief">
-                    <div>
-                        <span class="brief-label">Now active</span>
-                        <strong id="activeStudents">0</strong>
-                        <small>students connected</small>
-                    </div>
-                    <div>
-                        <span class="brief-label">Read rate</span>
-                        <strong id="readRateHero">0%</strong>
-                        <small>across active notices</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-grid" aria-label="Campus One statistics">
-                <article class="stat-card">
-                    <span class="stat-icon"><i data-lucide="megaphone"></i></span>
-                    <div>
-                        <p>Announcements</p>
-                        <strong id="announcementCount">0</strong>
-                    </div>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-icon teal"><i data-lucide="eye"></i></span>
-                    <div>
-                        <p>Unread</p>
-                        <strong id="unreadCount">0</strong>
-                    </div>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-icon coral"><i data-lucide="siren"></i></span>
-                    <div>
-                        <p>Urgent</p>
-                        <strong id="urgentCount">0</strong>
-                    </div>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-icon amber"><i data-lucide="messages-square"></i></span>
-                    <div>
-                        <p>Responses</p>
-                        <strong id="responseCount">0</strong>
-                    </div>
-                </article>
-            </div>
-
-            <div class="dashboard-grid">
-                <section class="priority-panel cr-only" aria-labelledby="manageStudentsHeading">
-                    <div class="section-title">
-                        <p class="eyebrow">CR setup</p>
-                        <h2 id="manageStudentsHeading">Manage Room</h2>
-                    </div>
-                    <div class="room-control-card">
-                        <div>
-                            <span>Room code</span>
-                            <strong id="roomCodeLabel">No room</strong>
-                        </div>
-                        <button class="ghost-button" type="button" id="copyRoomBtn">
-                            <i data-lucide="copy"></i>
-                            <span>Copy Link</span>
-                        </button>
-                    </div>
-                    <label class="check-option" for="freezeCrAccess">
-                        <input type="checkbox" id="freezeCrAccess">
-                        <span>
-                            <strong>Freeze CR access</strong>
-                            <small>Only approved CRs can open CR features. Maximum 2 CRs per room.</small>
-                        </span>
-                    </label>
-                    <form id="studentManageForm" class="student-manage-form">
-                        <label for="managedStudentName">Student name</label>
-                        <input type="text" id="managedStudentName" placeholder="Enter student name">
-                        <div class="form-grid">
-                            <div>
-                                <label for="managedStudentCollege">College</label>
-                                <input type="text" id="managedStudentCollege" placeholder="College name">
-                            </div>
-                            <div>
-                                <label for="managedStudentBatch">Batch</label>
-                                <input type="text" id="managedStudentBatch" placeholder="Batch">
-                            </div>
-                        </div>
-                        <button class="primary-button full-width" type="submit">
-                            <i data-lucide="user-plus"></i>
-                            <span>Add Student</span>
-                        </button>
-                        <button class="ghost-button full-width" type="button" id="addCoCrBtn">
-                            <i data-lucide="shield-plus"></i>
-                            <span>Add as Co-CR</span>
-                        </button>
-                    </form>
-                    <div id="studentsList" class="students-list"></div>
-                </section>
-
-                <section class="priority-panel" aria-labelledby="priorityHeading">
-                    <div class="section-title">
-                        <p class="eyebrow">High signal</p>
-                        <h2 id="priorityHeading">Priority Board</h2>
-                    </div>
-                    <div id="urgentList" class="priority-list"></div>
-                </section>
-
-                <section class="pulse-panel" aria-labelledby="pulseHeading">
-                    <div class="section-title">
-                        <p class="eyebrow">Live setup</p>
-                        <h2 id="pulseHeading">Workspace Status</h2>
-                    </div>
-                    <div class="pulse-grid">
-                        <div class="pulse-item">
-                            <i data-lucide="users-round"></i>
-                            <strong id="pulseStudents">0</strong>
-                            <span>students added by CR</span>
-                        </div>
-                        <div class="pulse-item">
-                            <i data-lucide="notebook-tabs"></i>
-                            <strong id="pulseNotes">0</strong>
-                            <span>notes in marketplace</span>
-                        </div>
-                        <div class="pulse-item">
-                            <i data-lucide="clipboard-list"></i>
-                            <strong id="pulseCrPosts">0</strong>
-                            <span>CR board posts</span>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </section>
-
-        <section class="app-section notes-section" id="notesHub">
-            <div class="section-title wide-title">
-                <p class="eyebrow">AI notes marketplace</p>
-                <h2>Upload Notes and Set Your Price</h2>
-            </div>
-
-            <div class="ai-tool-panel" id="aiToolPanel">
-                <div class="ai-tool-copy">
-                    <p class="eyebrow">Student AI tool</p>
-                    <h3>AI Notes Summarizer</h3>
-                    <p>Pay ₹20 once, then paste notes or upload a file to generate a color-coded summary, a day-by-day study plan with key dates, and priority topics — quiz and a personalized day planner unlock right after.</p>
-                </div>
-                <button class="primary-button" type="button" id="aiToolPayBtn">
-                    <i data-lucide="wallet-cards"></i>
-                    <span>Unlock AI Summarizer ₹20</span>
-                </button>
-
-                <div class="ai-history-bar" id="aiHistoryBar"></div>
-
-                <form class="ai-tool-form locked" id="aiToolForm">
-                    <div class="form-grid">
-                        <div>
-                            <label for="aiToolTitle">Notes title</label>
-                            <input type="text" id="aiToolTitle" placeholder="Unit 2 revision" required>
-                        </div>
-                        <div>
-                            <label for="aiToolSubject">Subject</label>
-                            <input type="text" id="aiToolSubject" placeholder="Subject name" required>
-                        </div>
-                        <div>
-                            <label for="aiToolFile">Upload file</label>
-                            <input type="file" id="aiToolFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt">
-                        </div>
-                    </div>
-                    <label for="aiToolText">Paste notes</label>
-                    <textarea id="aiToolText" rows="7" placeholder="Paste your notes here, or upload a file above."></textarea>
-
-                    <button class="primary-button full-width" type="submit">
-                        <i data-lucide="sparkles"></i>
-                        <span>Summarize My Notes</span>
-                    </button>
-                    <p class="recipient-note" id="aiToolStatus">Unlock the AI summarizer to use this tool.</p>
-                </form>
-                <div id="aiToolResult" class="ai-result-panel"></div>
-            </div>
-
-            <div class="notes-grid">
-                <form class="composer notes-uploader" id="notesUploadForm">
-                    <div class="upload-banner">
-                        <i data-lucide="sparkles"></i>
-                        <div>
-                            <strong>Claude-powered note pack</strong>
-                            <span>Upload once. Summary, plan, quiz, and deadlines are generated and stored.</span>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div>
-                            <label for="noteTitle">Note title</label>
-                            <input type="text" id="noteTitle" placeholder="Data Structures Unit 3" required>
-                        </div>
-                        <div>
-                            <label for="noteSubject">Subject</label>
-                            <input type="text" id="noteSubject" placeholder="Computer Science" required>
-                        </div>
-                        <div>
-                            <label for="noteCollege">College name</label>
-                            <input type="text" id="noteCollege" placeholder="Your college name" required>
-                        </div>
-                        <div>
-                            <label for="noteFile">File upload</label>
-                            <input type="file" id="noteFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" required>
-                        </div>
-                        <div>
-                            <label for="notePrice">Seller price</label>
-                            <input type="number" id="notePrice" min="10" step="1" placeholder="Set price in rupees" required>
-                        </div>
-                    </div>
-
-                    <div class="fixed-price-line">
-                        <span id="notePriceHint">Suggested max updates after file selection</span>
-                        <strong>AI pack ₹20</strong>
-                    </div>
-
-                    <button class="primary-button full-width" type="submit">
-                        <i data-lucide="cloud-upload"></i>
-                        <span>Upload Notes</span>
-                    </button>
-                    <p class="recipient-note" id="noteAiStatus">Claude API endpoint is used when configured; demo AI generation works offline.</p>
-                </form>
-
-                <aside class="preview-panel earnings-panel">
-                    <div class="section-title">
-                        <p class="eyebrow">Uploader earnings</p>
-                        <h2>My Earnings</h2>
-                    </div>
-                    <div class="earnings-total">
-                        <span>Total earned</span>
-                        <strong id="totalEarnings">₹0</strong>
-                    </div>
-                    <div id="earningsList" class="earnings-list"></div>
-                </aside>
-            </div>
-
-            <div class="marketplace-head">
-                <div class="section-title">
-                    <p class="eyebrow">Browse Notes</p>
-                    <h2>Premium Study Packs</h2>
-                </div>
-                <label class="search-box" for="notesSearch">
-                    <i data-lucide="search"></i>
-                    <input type="search" id="notesSearch" placeholder="Search notes, subjects, colleges">
-                </label>
-            </div>
-
-            <div id="notesList" class="notes-list"></div>
-        </section>
-
-        <section class="app-section cr-board-section" id="crBoard">
-            <div class="feed-heading">
-                <div class="section-title">
-                    <p class="eyebrow">College-filtered notices</p>
-                    <h2>CR Board</h2>
-                </div>
-                <span class="college-pill" id="studentCollegeLabel">Your College</span>
-            </div>
-
-            <form class="composer cr-post-form cr-only" id="crPostForm">
-                <div class="form-grid">
-                    <div>
-                        <label for="crPostTitle">Title</label>
-                        <input type="text" id="crPostTitle" placeholder="Exam seating update" required>
-                    </div>
-                    <div>
-                        <label for="crPostCollege">College</label>
-                        <input type="text" id="crPostCollege" placeholder="Your college name" required>
-                    </div>
-                    <div>
-                        <label for="crPostBatch">Batch</label>
-                        <input type="text" id="crPostBatch" placeholder="CSE 2026">
-                    </div>
-                    <div>
-                        <label for="crPostFile">Attachment</label>
-                        <input type="file" id="crPostFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
-                    </div>
-                </div>
-                <label for="crPostBody">Message body</label>
-                <textarea id="crPostBody" rows="5" placeholder="Write the CR update here..." required></textarea>
-                <label class="check-option" for="crPostPinned">
-                    <input type="checkbox" id="crPostPinned">
-                    <span>
-                        <strong>Pin this CR post</strong>
-                        <small>Pinned posts appear first for students in this college</small>
-                    </span>
-                </label>
-                <button class="primary-button full-width" type="submit">
-                    <i data-lucide="send"></i>
-                    <span>Post to CR Board</span>
-                </button>
-            </form>
-
-            <div id="crBoardList" class="announcement-list"></div>
-        </section>
-
-        <section class="app-section compose-section cr-only" id="compose">
-            <div class="section-title wide-title">
-                <p class="eyebrow">Structured broadcasting</p>
-                <h2>Smart Announcement Composer</h2>
-            </div>
-
-            <div class="compose-grid">
-                <form class="composer" id="announcementForm">
-                    <div class="template-row" id="templateChips" aria-label="Announcement templates"></div>
-
-                    <label for="message">Announcement</label>
-                    <textarea id="message" maxlength="280" rows="7" placeholder="Write the announcement students need to see."></textarea>
-                    <div class="field-meta">
-                        <span id="charCount">0/280</span>
-                        <span id="toneHint">Clear, direct, student friendly</span>
-                    </div>
-
-                    <div class="form-grid">
-                        <div>
-                            <label for="mention">@ Student recipients</label>
-                            <select id="mention" multiple size="6">
-                                <option value="All" selected>All Students</option>
-                            </select>
-                            <div class="recipient-chips" id="recipientChips" aria-label="Tap recipients"></div>
-                            <small class="recipient-note">Select names for confidential delivery. Ctrl/Command lets you choose multiple.</small>
-                        </div>
-                        <div>
-                            <label for="category">Category</label>
-                            <select id="category">
-                                <option value="Academic">Academic</option>
-                                <option value="Placement">Placement</option>
-                                <option value="Event">Event</option>
-                                <option value="Club">Club</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="priority">Priority</label>
-                            <select id="priority">
-                                <option value="Normal">Normal</option>
-                                <option value="Important">Important</option>
-                                <option value="Urgent">Urgent</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="dueDate">Due date</label>
-                            <input type="datetime-local" id="dueDate">
-                        </div>
-                    </div>
-
-                    <div class="option-grid">
-                        <label class="check-option" for="pinAnnouncement">
-                            <input type="checkbox" id="pinAnnouncement">
-                            <span>
-                                <strong>Pin announcement</strong>
-                                <small>Keep it above normal updates</small>
-                            </span>
-                        </label>
-                        <label class="check-option" for="requireResponse">
-                            <input type="checkbox" id="requireResponse" checked>
-                            <span>
-                                <strong>Collect responses</strong>
-                                <small>Attending, maybe, not attending</small>
-                            </span>
-                        </label>
-                    </div>
-
-                    <label class="file-drop" for="attachmentInput">
-                        <i data-lucide="paperclip"></i>
-                        <span>
-                            <strong id="attachmentName">Attach document</strong>
-                            <small>PDF, image, notice, or timetable</small>
-                        </span>
-                        <input type="file" id="attachmentInput" multiple>
-                    </label>
-
-                    <button class="primary-button full-width" id="sendBtn" type="submit">
-                        <i data-lucide="send-horizontal"></i>
-                        <span>Send Announcement</span>
-                    </button>
-                </form>
-
-                <aside class="preview-panel" aria-label="Announcement preview">
-                    <div class="phone-shell">
-                        <div class="phone-top">
-                            <span></span>
-                            <strong>Campus One</strong>
-                            <i data-lucide="wifi"></i>
-                        </div>
-                        <article class="preview-card" id="previewCard">
-                            <div class="preview-meta">
-                                <span id="previewCategory">Academic</span>
-                                <span id="previewPriority">Normal</span>
-                            </div>
-                            <h3 id="previewAudience">To All Students</h3>
-                            <p id="previewMessage">Your announcement preview will appear here as you type.</p>
-                            <div class="preview-footer">
-                                <span>Read rate 0%</span>
-                                <span>Just now</span>
-                            </div>
-                        </article>
-                    </div>
-                </aside>
-            </div>
-        </section>
-
-        <section class="app-section feed-section" id="feed">
-            <div class="feed-heading">
-                <div class="section-title">
-                    <p class="eyebrow">Single source of truth</p>
-                    <h2>Live Announcement Feed</h2>
-                </div>
-                <button class="ghost-button danger cr-only" type="button" id="clearBtn">
-                    <i data-lucide="trash-2"></i>
-                    <span>Clear Feed</span>
-                </button>
-            </div>
-
-            <div class="feed-tools">
-                <label class="search-box" for="feedSearch">
-                    <i data-lucide="search"></i>
-                    <input type="search" id="feedSearch" placeholder="Search announcements, students, categories">
-                </label>
-                <select id="filterCategory" aria-label="Filter by category">
-                    <option value="All">All categories</option>
-                    <option value="Academic">Academic</option>
-                    <option value="Placement">Placement</option>
-                    <option value="Event">Event</option>
-                    <option value="Club">Club</option>
-                    <option value="Admin">Admin</option>
-                </select>
-                <select id="sortMode" aria-label="Sort feed">
-                    <option value="newest">Newest first</option>
-                    <option value="priority">Priority first</option>
-                    <option value="readRate">Read rate</option>
-                </select>
-            </div>
-
-            <div class="filter-tabs" id="feedFilters" role="tablist" aria-label="Feed filters">
-                <button class="feed-filter active" type="button" data-filter="all">All</button>
-                <button class="feed-filter" type="button" data-filter="mine">For Me</button>
-                <button class="feed-filter" type="button" data-filter="unread">Unread</button>
-                <button class="feed-filter" type="button" data-filter="pinned">Pinned</button>
-                <button class="feed-filter" type="button" data-filter="urgent">Urgent</button>
-            </div>
-
-            <div id="announcementList" class="announcement-list" aria-live="polite"></div>
-
-            <div class="empty-state" id="emptyState">
-                <i data-lucide="inbox"></i>
-                <h3>No matching announcements</h3>
-                <p>Adjust the filters or send a new update.</p>
-            </div>
-        </section>
-
-        <section class="app-section planner-section" id="planner">
-            <div class="section-title wide-title">
-                <p class="eyebrow">Real deadlines only</p>
-                <h2>Announcement Follow-ups</h2>
-            </div>
-            <div class="planner-grid" id="plannerList"></div>
-        </section>
-
-        <section class="app-section insights-section" id="insights">
-            <div class="section-title wide-title">
-                <p class="eyebrow">Approval-ready reporting</p>
-                <h2>Communication Insights</h2>
-            </div>
-            <div class="insight-grid">
-                <article class="metric-panel">
-                    <div class="metric-top">
-                        <span>Announcement read rate</span>
-                        <strong id="readRateMetric">0%</strong>
-                    </div>
-                    <div class="meter"><span id="readRateBar"></span></div>
-                </article>
-                <article class="metric-panel">
-                    <div class="metric-top">
-                        <span>Engagement rate</span>
-                        <strong id="engagementMetric">0%</strong>
-                    </div>
-                    <div class="meter"><span id="engagementBar"></span></div>
-                </article>
-                <article class="metric-panel">
-                    <div class="metric-top">
-                        <span>Missed-update risk</span>
-                        <strong id="riskMetric">Low</strong>
-                    </div>
-                    <div class="meter risk"><span id="riskBar"></span></div>
-                </article>
-            </div>
-        </section>
-
-        <section class="app-section profile-section" id="profile" aria-hidden="true">
-            <div class="profile-drawer-head">
-                <div class="section-title wide-title">
-                    <p class="eyebrow">My Campus One</p>
-                    <h2>Profile and Progress</h2>
-                </div>
-                <button class="icon-button" type="button" id="profileCloseBtn" aria-label="Close profile">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <div class="profile-grid">
-                <article class="profile-card profile-identity-card">
-                    <div class="profile-avatar" id="profileAvatar">CO</div>
-                    <div>
-                        <p class="eyebrow" id="profilePlan">Normal</p>
-                        <h3 id="profileName">Not logged in</h3>
-                        <p id="profileMeta">Login to view your profile.</p>
-                    </div>
-                    <button class="ghost-button profile-logout-button" type="button" id="logoutBtn">
-                        <i data-lucide="log-out"></i>
-                        <span>Log out</span>
-                    </button>
-                </article>
-                <article class="profile-card">
-                    <span>Room</span>
-                    <strong id="profileRoom">No room</strong>
-                    <small id="profileRole">Student</small>
-                </article>
-                <article class="profile-card">
-                    <span>Notes Uploaded</span>
-                    <strong id="profileUploaded">0</strong>
-                    <small>Your listed study packs</small>
-                </article>
-                <article class="profile-card">
-                    <span>Notes Purchased</span>
-                    <strong id="profilePurchased">0</strong>
-                    <small>Unlocked downloads</small>
-                </article>
-                <article class="profile-card">
-                    <span>AI Access</span>
-                    <strong id="profileAiStatus">Normal</strong>
-                    <small id="profileAiDetail">AI summarizer not unlocked</small>
-                </article>
-                <article class="profile-card">
-                    <span>Progress</span>
-                    <strong id="profileProgress">0%</strong>
-                    <small id="profileProgressDetail">No announcements yet</small>
-                </article>
-            </div>
-            <div class="profile-lists">
-                <article class="profile-panel">
-                    <h3>Uploaded Notes</h3>
-                    <div id="profileUploadedList" class="profile-list"></div>
-                </article>
-                <article class="profile-panel">
-                    <h3>Purchased Notes</h3>
-                    <div id="profilePurchasedList" class="profile-list"></div>
-                </article>
-                <article class="profile-panel">
-                    <h3>Login Information</h3>
-                    <div id="profileLoginInfo" class="profile-list"></div>
-                </article>
-            </div>
-        </section>
-    </main>
-
-    <div class="floating-actions" aria-label="Quick actions">
-        <button class="floating-button cr-only" type="button" id="quickCompose">
-            <i data-lucide="plus"></i>
-            <span>New</span>
-        </button>
-        <button class="floating-button icon-only" type="button" id="scrollTopBtn" aria-label="Scroll to top">
-            <i data-lucide="arrow-up"></i>
-        </button>
+    <div class="nav-auth-area nav-mobile-hide" id="navAuthArea">
+      <a href="#" class="nav-cta" id="navSignInBtn">Sign in</a>
     </div>
+  </div>
+</header>
 
-    <button class="help-chat-launcher" type="button" id="helpChatLauncher" aria-label="Open AI Help Assistant">
-        <i data-lucide="message-circle"></i>
-    </button>
-
-    <div class="help-chat-panel" id="helpChatPanel" role="dialog" aria-label="Campus One Help Assistant">
-        <div class="help-chat-header">
-            <div>
-                <strong>Campus One Help Assistant</strong>
-                <span>Free for everyone</span>
-            </div>
-            <button type="button" class="help-chat-close" id="helpChatClose" aria-label="Close chat">
-                <i data-lucide="x"></i>
-            </button>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow-tag"><span class="dot"></span>Built with CRs, for every batch</span>
+      <h1>Your batch,<br>finally organized <span class="code">for real.</span></h1>
+      <p class="hero-sub">Campus One replaces the WhatsApp group nobody can keep up with — one verified room per batch, announcements that get read and answered, and notes that don't disappear when seniors graduate.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" id="heroCreateBtn">Create your room</button>
+        <button class="btn btn-secondary" id="heroJoinBtn">Join with a room code</button>
+      </div>
+      <div class="hero-trust">No more "did everyone see this?" — read receipts on every post.</div>
+    </div>
+    <div class="hero-visual">
+      <div class="id-card back">
+        <div class="id-top">
+          <div>
+            <div class="id-room">ROOM</div>
+            <div class="id-code">B.Tech CSE '27</div>
+          </div>
         </div>
-        <div class="help-chat-messages" id="helpChatMessages"></div>
-        <form class="help-chat-input-row" id="helpChatForm">
-            <input type="text" id="helpChatInput" placeholder="Ask about rooms, CR Board, notes..." autocomplete="off">
-            <button type="submit" class="help-chat-send" aria-label="Send message">
-                <i data-lucide="send"></i>
-            </button>
-        </form>
+      </div>
+      <div class="id-card front">
+        <div class="id-top">
+          <div>
+            <div class="id-room">ROOM · MIT-WPU-CSE24-A</div>
+            <div class="id-code">#4F9K2R</div>
+          </div>
+          <div class="id-pin">CR</div>
+        </div>
+        <div class="id-post">
+          <span class="tag">URGENT</span><br>
+          Viva rescheduled to Fri 10am, Lab 3. Reply attending/not by tonight.
+        </div>
+        <div class="id-meta">
+          <span>58/61 read</span>
+          <span>42 responded</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>The group chat wasn't built for this.</h2>
+      <p>It works fine for memes. It's a bad system for announcements that matter.</p>
+    </div>
+    <div class="compare">
+      <div class="compare-col messy">
+        <div class="compare-label">A WhatsApp group, day 40</div>
+        <ul class="compare-list">
+          <li><span class="mark">✕</span>Viva timing buried under 200 unread messages</li>
+          <li><span class="mark">✕</span>No way to know who's actually seen it</li>
+          <li><span class="mark">✕</span>"Attending?" answered by 6 people out of 60</li>
+          <li><span class="mark">✕</span>Senior's notes gone the day the chat got deleted</li>
+          <li><span class="mark">✕</span>Anyone can post as anyone — no real CR verification</li>
+        </ul>
+      </div>
+      <div class="compare-col clean">
+        <div class="compare-label">A Campus One room</div>
+        <ul class="compare-list">
+          <li><span class="mark">✓</span>One structured post, pinned, categorized, hard to miss</li>
+          <li><span class="mark">✓</span>Read receipts — CR sees exactly who's seen it</li>
+          <li><span class="mark">✓</span>Built-in attending / maybe / not-attending responses</li>
+          <li><span class="mark">✓</span>Notes live in the room's marketplace, permanently</li>
+          <li><span class="mark">✓</span>One verified CR per room, PIN-protected</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule wrap">
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Set up in three steps</h2>
+      <p>No app training required — if your CR can use WhatsApp, they can run a room.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>CR creates the room</h3>
+        <p>College, batch, and a room code — generated in under a minute, secured with a private CR PIN.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Students join with the code</h3>
+        <p>No searching, no random adds. Only people with the exact room code get in.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>CR posts, batch responds</h3>
+        <p>Category, priority, due date, and a response option — every post trackable, nothing buried.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule wrap">
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Everything a room needs</h2>
+      <p>Run by the CR, built around how a batch actually communicates.</p>
+    </div>
+    <div class="bento">
+      <div class="feat big dark">
+        <div class="feat-corner live">LIVE</div>
+        <div>
+          <h3>CR Mission Control</h3>
+          <p>One dashboard to post, pin, track responses, and manage who's in the room — built for someone with zero technical background.</p>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-corner live">LIVE</div>
+        <h3>Smart Announcement Composer</h3>
+        <p>Category, priority, due date, and optional response collection on every post.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-corner">TESTING</div>
+        <h3>Read receipts</h3>
+        <p>See exactly who's opened an announcement — no more guessing.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-corner">TESTING</div>
+        <h3>Attending / Maybe / Not</h3>
+        <p>Structured responses collected automatically, no manual tally.</p>
+      </div>
+      <div class="feat dark">
+        <div class="feat-corner live">LIVE</div>
+        <h3>CR Board</h3>
+        <p>A second, CR-only board for internal notes and planning.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-corner live">LIVE</div>
+        <h3>Freeze room</h3>
+        <p>CR can lock new joins the moment the batch list is final.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-corner live">LIVE</div>
+        <h3>Hashed CR PIN</h3>
+        <p>Only the CR can post as the CR — PIN never stored in plain text.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule wrap">
+
+<section id="audience">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Built around two people</h2>
+      <p>The CR who runs the room, and the student who just wants the real update.</p>
+    </div>
+    <div class="audience">
+      <div class="aud-panel cr">
+        <div class="aud-kicker">FOR THE CR</div>
+        <h3>Run the room without chasing anyone</h3>
+        <ul class="aud-list">
+          <li><span class="n">01</span>Post once — know instantly who's seen it and who hasn't</li>
+          <li><span class="n">02</span>Collect attending/maybe/not-attending automatically</li>
+          <li><span class="n">03</span>Freeze the room once your batch list is locked</li>
+          <li><span class="n">04</span>Keep CR-only planning separate, on the CR Board</li>
+        </ul>
+      </div>
+      <div class="aud-panel student">
+        <div class="aud-kicker">FOR THE STUDENT</div>
+        <h3>See what's real, skip the noise</h3>
+        <ul class="aud-list">
+          <li><span class="n">01</span>Only verified updates from your actual batch, nothing else</li>
+          <li><span class="n">02</span>Buy senior notes for ₹20 — enhanced with an AI summary and quiz</li>
+          <li><span class="n">03</span>Get an AI study plan built from your own notes</li>
+          <li><span class="n">04</span>Never lose access when a chat gets deleted</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule wrap">
+
+<section id="marketplace">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Notes and AI tools, built into the room</h2>
+      <p>Flat ₹20 pricing — no subscriptions, pay only for what you use.</p>
+    </div>
+    <div class="strip">
+      <div class="strip-card">
+        <div class="price-tag">₹20</div>
+        <h3>Notes marketplace</h3>
+        <p>Students upload and sell their notes to the batch — priced flat, so nobody overthinks whether it's worth buying.</p>
+        <div class="strip-chips">
+          <span class="chip">Batch-only access</span>
+          <span class="chip">Stays after graduation</span>
+        </div>
+      </div>
+      <div class="strip-card">
+        <div class="price-tag">₹20</div>
+        <h3>AI study tools</h3>
+        <p>Every note pack can be unlocked with an AI summary, a practice quiz, or a study plan — generated on the spot.</p>
+        <div class="strip-chips">
+          <span class="chip">Summarizer</span>
+          <span class="chip">Quiz generator</span>
+          <span class="chip">Study planner</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule wrap">
+
+<section id="trust">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Every room is scoped and verified</h2>
+      <p>Your batch's data stays your batch's data.</p>
+    </div>
+    <div class="trust-row">
+      <div class="trust-item"><span class="ic"></span>One verified CR per room</div>
+      <div class="trust-item"><span class="ic"></span>PINs stored as hashes, never plain text</div>
+      <div class="trust-item"><span class="ic"></span>Data scoped per room, row-level security</div>
+      <div class="trust-item"><span class="ic"></span>Secure checkout for notes and AI unlocks</div>
+    </div>
+  </div>
+</section>
+
+<section id="get-started">
+  <div class="wrap">
+    <div class="final-cta">
+      <h2>Your batch's next announcement deserves better than a group chat.</h2>
+      <p>Set up your room in under a minute — free to create, free to join.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" id="finalCreateBtn">Create your room</button>
+        <button class="btn btn-secondary" id="finalJoinBtn">Join with a room code</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="logo"><span class="logo-mark"></span>Campus One</div>
+    <div class="footer-links">
+      <a href="#features">Features</a>
+      <a href="#audience">For CRs</a>
+      <a href="#marketplace">Notes &amp; AI</a>
+      <a href="#trust">Trust</a>
+    </div>
+    <div class="footer-note">© 2026 Campus One. Made for Indian college batches.</div>
+  </div>
+</footer>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" id="authClose">✕</button>
+    <div id="authMainView">
+      <h3>Welcome to Campus One</h3>
+      <p class="modal-sub">Sign in to create or join a room.</p>
+      <div class="modal-tabs">
+        <div class="modal-tab active" id="tabSignIn">Sign in</div>
+        <div class="modal-tab" id="tabSignUp">Sign up</div>
+      </div>
+      <div class="form-msg" id="authMsg"></div>
+      <form id="authForm">
+        <div class="field">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" required placeholder="you@college.edu">
+        </div>
+        <div class="field">
+          <label for="authPassword">Password</label>
+          <input type="password" id="authPassword" required minlength="6" placeholder="At least 6 characters">
+        </div>
+        <a href="#" class="auth-forgot-link" id="showForgotLink">Forgot password?</a>
+        <button type="submit" class="btn btn-primary" id="authSubmitBtn">Sign in</button>
+      </form>
     </div>
 
-    <div class="profile-backdrop" id="profileBackdrop"></div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div id="authForgotView" style="display:none;">
+      <a href="#" class="auth-back-link" id="backToSignInLink">← Back to sign in</a>
+      <h3>Reset your password</h3>
+      <p class="modal-sub">Enter your email — we'll send a reset link.</p>
+      <div class="form-msg" id="forgotMsg"></div>
+      <form id="forgotForm">
+        <div class="field">
+          <label for="forgotEmail">Email</label>
+          <input type="email" id="forgotEmail" required placeholder="you@college.edu">
+        </div>
+        <button type="submit" class="btn btn-primary" id="forgotSubmitBtn">Send reset link</button>
+      </form>
+    </div>
 
-    <script src="config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script src="script.js"></script>
+    <div id="authResetView" style="display:none;">
+      <h3>Set a new password</h3>
+      <p class="modal-sub">You're verified — choose a new password for your account.</p>
+      <div class="form-msg" id="resetMsg"></div>
+      <form id="resetForm">
+        <div class="field">
+          <label for="resetPassword">New password</label>
+          <input type="password" id="resetPassword" required minlength="6" placeholder="At least 6 characters">
+        </div>
+        <button type="submit" class="btn btn-primary" id="resetSubmitBtn">Update password</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CREATE ROOM MODAL ============ -->
+<div class="overlay" id="createOverlay">
+  <div class="modal">
+    <button class="modal-close" id="createClose">✕</button>
+    <h3>Create your room</h3>
+    <p class="modal-sub">You'll be the CR for this room. Share the code with your batch once it's created.</p>
+    <div class="form-msg" id="createMsg"></div>
+    <form id="createForm">
+      <div class="field">
+        <label for="createName">Your name</label>
+        <input type="text" id="createName" required placeholder="As you'd like your batch to see it">
+      </div>
+      <div class="field">
+        <label for="createCollege">College name</label>
+        <input type="text" id="createCollege" required placeholder="e.g. MIT-WPU">
+      </div>
+      <div class="field">
+        <label for="createBatch">Batch / section</label>
+        <input type="text" id="createBatch" required placeholder="e.g. CSE 2024 - A">
+      </div>
+      <div class="field">
+        <label for="createPin">Set a CR PIN</label>
+        <input type="password" id="createPin" required minlength="4" placeholder="4+ digit PIN, keep it private">
+        <div class="field-hint">Only you'll use this to post as CR. Stored as a hash, never in plain text.</div>
+      </div>
+      <button type="submit" class="btn btn-primary" id="createSubmitBtn">Create room</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ JOIN ROOM MODAL ============ -->
+<div class="overlay" id="joinOverlay">
+  <div class="modal">
+    <button class="modal-close" id="joinClose">✕</button>
+    <h3>Join a room</h3>
+    <p class="modal-sub">Enter the room code your CR shared with you.</p>
+    <div class="form-msg" id="joinMsg"></div>
+    <form id="joinForm">
+      <div class="field">
+        <label for="joinName">Your name</label>
+        <input type="text" id="joinName" required placeholder="As your batch will see it">
+      </div>
+      <div class="field">
+        <label for="joinCode">Room code</label>
+        <input type="text" id="joinCode" required placeholder="e.g. 4F9K2R" style="text-transform:uppercase;">
+      </div>
+      <button type="submit" class="btn btn-primary" id="joinSubmitBtn">Join room</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ ROOM DASHBOARD ============ -->
+<div id="appView">
+  <div class="app-shell">
+    <div class="app-header">
+      <div class="wrap">
+        <div>
+          <div class="rc-label" id="appRoomLabel">ROOM</div>
+          <div class="rc-code" id="appRoomCode">—</div>
+          <span class="role-badge" id="appRoleBadge" style="display:none;">CR</span>
+        </div>
+        <button class="app-logout" id="appLogoutBtn">Log out</button>
+      </div>
+      <div class="wrap">
+        <div class="app-tabs" id="appTabs">
+          <button class="app-tab active" data-tab="today">Today</button>
+          <button class="app-tab" data-tab="compose" id="tabComposeBtn" style="display:none;">Compose</button>
+          <button class="app-tab" data-tab="feed">Feed</button>
+          <button class="app-tab" data-tab="crboard">CR Board</button>
+          <button class="app-tab" data-tab="notes">Notes</button>
+          <button class="app-tab ai-studio-tab" data-tab="aistudio">✨ AI Studio</button>
+          <button class="app-tab" data-tab="insights">Insights</button>
+          <button class="app-tab" data-tab="profile">Profile</button>
+        </div>
+      </div>
+    </div>
+    <div class="app-body">
+      <div class="wrap">
+        <div class="form-msg" id="appMsg"></div>
+
+        <!-- TODAY -->
+        <div class="app-panel active" id="panel-today">
+          <div class="greeting-block">
+            <h2 id="greetingText">Hey there 👋</h2>
+            <p id="greetingSub">Here's what's going on in your room today.</p>
+          </div>
+          <div class="stat-row" id="statRow">
+            <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Announcements</div></div>
+            <div class="stat-card"><div class="stat-num" id="statUrgent">0</div><div class="stat-label">Urgent</div></div>
+            <div class="stat-card"><div class="stat-num" id="statPinned">0</div><div class="stat-label">Pinned</div></div>
+            <div class="stat-card"><div class="stat-num" id="statResponses">0</div><div class="stat-label">Responses collected</div></div>
+          </div>
+
+          <div class="panel-block" id="manageRoomBlock" style="display:none;">
+            <h3>Manage room</h3>
+            <div class="manage-row">
+              <div>
+                <div class="field-hint" style="margin-bottom:4px;">Room code — share this with your batch</div>
+                <div class="room-code-display" style="margin:0; text-align:left; padding:14px 18px;">
+                  <span class="rc-code" id="manageRoomCode" style="font-size:19px;">—</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary" id="copyRoomCodeBtn" style="width:auto;">Copy code</button>
+            </div>
+            <label class="toggle-row">
+              <input type="checkbox" id="freezeRoomToggle">
+              <span>Freeze room — stop new students from joining with the code</span>
+            </label>
+          </div>
+
+          <div class="panel-block">
+            <h3>Recent activity</h3>
+            <div id="todayFeedPreview"><div class="ann-empty">Loading…</div></div>
+          </div>
+
+          <div class="panel-block">
+            <h3>Why you can trust this room</h3>
+            <div class="trust-row">
+              <div class="trust-item"><span class="ic"></span>Verified CR — only the person with the PIN can post as CR</div>
+              <div class="trust-item"><span class="ic"></span>PINs are hashed, never stored as plain text</div>
+              <div class="trust-item"><span class="ic"></span>Data stays scoped to this room, not shared across batches</div>
+              <div class="trust-item"><span class="ic"></span>Freeze the room anytime to stop new joins cold</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPOSE (CR only) -->
+        <div class="app-panel" id="panel-compose">
+          <div class="composer" style="margin-bottom:0;">
+            <h3>Smart Announcement Composer</h3>
+            <div class="composer-row">
+              <div class="field">
+                <label for="postCategory">Category</label>
+                <select id="postCategory">
+                  <option>Academic</option>
+                  <option>Placement</option>
+                  <option>Event</option>
+                  <option>Club</option>
+                  <option>Admin</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="postPriority">Priority</label>
+                <select id="postPriority">
+                  <option value="Normal">Normal</option>
+                  <option value="Important">Important</option>
+                  <option value="Urgent">Urgent</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="postDue">Due date (optional)</label>
+                <input type="date" id="postDue">
+              </div>
+            </div>
+            <div class="field">
+              <label for="postBody">Announcement <span id="postBodyCount" style="font-weight:400;color:var(--ink-soft);">0/280</span></label>
+              <textarea id="postBody" rows="4" maxlength="280" placeholder="Clear, direct, student friendly"></textarea>
+            </div>
+            <label class="toggle-row"><input type="checkbox" id="postPinned"><span>Pin this announcement — keep it above normal updates</span></label>
+            <label class="toggle-row"><input type="checkbox" id="postRequiresResponse"><span>Collect responses — attending, maybe, not attending</span></label>
+            <button class="btn btn-primary" id="postSubmitBtn" style="width:auto;margin-top:12px;">Send announcement</button>
+          </div>
+        </div>
+
+        <!-- FEED -->
+        <div class="app-panel" id="panel-feed">
+          <div class="feed-filters">
+            <select id="filterCategory">
+              <option value="">All categories</option>
+              <option>Academic</option>
+              <option>Placement</option>
+              <option>Event</option>
+              <option>Club</option>
+              <option>Admin</option>
+            </select>
+            <select id="filterSort">
+              <option value="newest">Newest first</option>
+              <option value="priority">Priority first</option>
+            </select>
+            <select id="filterAudience">
+              <option value="all">All</option>
+              <option value="pinned">Pinned</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          <div id="annListWrap"><div class="ann-empty">Loading announcements…</div></div>
+        </div>
+
+        <!-- CR BOARD -->
+        <div class="app-panel" id="panel-crboard">
+          <div class="composer" id="crBoardComposer" style="display:none;">
+            <h3>Post to CR Board</h3>
+            <div class="field"><label for="crPostTitle">Title</label><input type="text" id="crPostTitle" placeholder="e.g. Internal planning note"></div>
+            <div class="field"><label for="crPostBody">Message</label><textarea id="crPostBody" rows="3" placeholder="CR-only note or plan"></textarea></div>
+            <label class="toggle-row"><input type="checkbox" id="crPostPinned"><span>Pin this CR post</span></label>
+            <button class="btn btn-primary" id="crPostSubmitBtn" style="width:auto;">Post to CR Board</button>
+          </div>
+          <div id="crBoardListWrap"><div class="ann-empty">Loading CR Board…</div></div>
+        </div>
+
+        <!-- NOTES -->
+        <div class="app-panel" id="panel-notes">
+          <div class="composer" id="notesUploadBox" style="display:none;">
+            <h3>Upload notes to the marketplace</h3>
+            <p class="field-hint" style="margin:0 0 14px;">Sell your notes to your batch — flat ₹20, no haggling, no DMs.</p>
+            <div class="composer-row">
+              <div class="field"><label for="noteTitle">Note title</label><input type="text" id="noteTitle" placeholder="e.g. Unit 3 — Thermodynamics"></div>
+              <div class="field"><label for="noteSubject">Subject</label><input type="text" id="noteSubject" placeholder="e.g. Physics"></div>
+              <div class="field"><label for="notePrice">Price (₹)</label><input type="number" id="notePrice" value="20" min="0"></div>
+            </div>
+            <div class="field"><label for="noteContent">Notes content</label><textarea id="noteContent" rows="4" placeholder="Paste your notes here"></textarea></div>
+            <button class="btn btn-primary" id="noteUploadBtn" style="width:auto;">Upload notes</button>
+          </div>
+          <div class="panel-block">
+            <h3>Browse notes</h3>
+            <div id="notesListWrap"><div class="ann-empty">Loading notes…</div></div>
+          </div>
+          <div class="panel-block">
+            <h3>How the marketplace works</h3>
+            <div class="trust-row">
+              <div class="trust-item"><span class="ic"></span>Flat ₹20 per note pack — no surprise pricing</div>
+              <div class="trust-item"><span class="ic"></span>Only your batch can see or buy your notes</div>
+              <div class="trust-item"><span class="ic"></span>Notes stick around even after the group chat dies</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI STUDIO (premium, combined) -->
+        <div class="app-panel" id="panel-aistudio">
+          <div class="ai-studio-hero">
+            <div class="ai-studio-hero-top">
+              <span class="premium-chip studio">✨ PREMIUM</span>
+              <h3>AI Studio — your study era starts here</h3>
+              <p>heyyy 👋 one unlock, two tools: a notes summarizer + quiz that actually gets it, and a day planner that turns "i have no time" into an actual schedule. ₹20, one time, no cap.</p>
+            </div>
+            <div class="trust-row studio-trust">
+              <div class="trust-item"><span class="ic"></span>Runs right in your browser — nothing leaves this tab</div>
+              <div class="trust-item"><span class="ic"></span>Secure checkout, every time</div>
+              <div class="trust-item"><span class="ic"></span>Same ₹20 unlock, works for every tool below</div>
+            </div>
+            <div id="studioUnlockRow">
+              <button class="btn btn-primary" id="aiUnlockBtn" style="width:auto;">Unlock AI Studio · ₹20</button>
+            </div>
+            <div id="studioUnlockedRow" style="display:none;">
+              <span class="premium-chip unlocked">✅ UNLOCKED — let's gooo</span>
+            </div>
+          </div>
+
+          <div id="studioToolArea" style="display:none;">
+            <div class="studio-subtabs">
+              <button class="studio-subtab active" data-subtab="summarizer">📚 Summarizer + Quiz</button>
+              <button class="studio-subtab" data-subtab="dayplanner">🗓️ Day Planner</button>
+            </div>
+
+            <!-- SUMMARIZER + QUIZ -->
+            <div class="studio-subpanel active" id="subpanel-summarizer">
+              <div class="panel-block">
+                <h3>Drop your notes here</h3>
+                <div class="composer-row">
+                  <div class="field"><label for="aiNoteTitle">Notes title</label><input type="text" id="aiNoteTitle" placeholder="e.g. Unit 3 — Thermodynamics"></div>
+                  <div class="field"><label for="aiNoteSubject">Subject</label><input type="text" id="aiNoteSubject" placeholder="e.g. Physics"></div>
+                </div>
+                <div class="field"><label for="aiNoteContent">Paste notes</label><textarea id="aiNoteContent" rows="5" placeholder="Paste the notes you want summarized, quizzed, and planned"></textarea></div>
+                <button class="btn btn-primary" id="aiSummarizeBtn" style="width:auto;">Summarize my notes ✨</button>
+              </div>
+
+              <div id="aiResults" style="display:none;">
+                <div class="ai-result-block">
+                  <h4>📝 Summary</h4>
+                  <div id="aiSummaryOut"></div>
+                </div>
+                <div class="ai-result-block">
+                  <h4>📅 Day-by-day study plan</h4>
+                  <div id="aiPlanOut"></div>
+                </div>
+                <div class="ai-result-block">
+                  <h4>🧠 Practice quiz — no peeking</h4>
+                  <p class="field-hint" style="margin-bottom:10px;">pick your answers then hit submit — answers are hidden till then, we don't do spoilers here</p>
+                  <div id="aiQuizOut"></div>
+                  <button class="btn btn-primary" id="aiQuizSubmitBtn" style="width:auto;margin-top:14px;display:none;">Submit quiz</button>
+                  <div id="aiQuizResults" style="display:none;margin-top:16px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DAY PLANNER -->
+            <div class="studio-subpanel" id="subpanel-dayplanner">
+              <div class="panel-block">
+                <h3>Tell us about your day</h3>
+                <p class="field-hint" style="margin:0 0 16px;">classes, deadlines, gym, whatever's already locked in — spill it and we'll build the rest of the day around it.</p>
+                <div class="field">
+                  <label for="plannerInput">Describe your day</label>
+                  <textarea id="plannerInput" rows="4" placeholder="e.g. Physics class 9-10am, free till noon, assignment due tonight, gym in the evening, want to sleep by 11pm"></textarea>
+                </div>
+                <button class="btn btn-primary" id="plannerGenerateBtn" style="width:auto;">Generate my day plan 🗓️</button>
+                <div id="plannerOut" style="margin-top:20px;"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- INSIGHTS -->
+        <div class="app-panel" id="panel-insights">
+          <div class="stat-row">
+            <div class="stat-card"><div class="stat-num" id="insTotal">0</div><div class="stat-label">Total announcements</div></div>
+            <div class="stat-card"><div class="stat-num" id="insPinnedPct">0%</div><div class="stat-label">Pinned share</div></div>
+            <div class="stat-card"><div class="stat-num" id="insUrgentPct">0%</div><div class="stat-label">Urgent share</div></div>
+            <div class="stat-card"><div class="stat-num" id="insResponsePct">0%</div><div class="stat-label">Response-required share</div></div>
+          </div>
+          <div class="panel-block">
+            <h3>By category</h3>
+            <div id="insightsByCat"></div>
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="app-panel" id="panel-profile">
+          <div class="panel-block">
+            <h3>Your profile</h3>
+            <div id="profileDetails"><div class="ann-empty">Loading…</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SUPABASE + APP LOGIC ============ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  // ---- CONFIG: your Supabase project ----
+  const SUPABASE_URL = "https://yoycosxaccatamhlcsvk.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlveWNvc3hhY2NhdGFtaGxjc3ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0MDEyNjYsImV4cCI6MjEwMjk3NzI2Nn0.5QsWTmX7UQQI4AhLXR3sD9Iu7C-574yLMy08iwgGfog";
+
+  // ---- TABLE / COLUMN NAMES — fully confirmed against your live schema (SQL Definition tab) ----
+  const TABLES = {
+    rooms: "rooms",              // code (PK, text), college, batch, cr_locked, cr_pin_hash, created_by, created_at
+    profiles: "profiles",        // id (=auth user id, PK), full_name (required), role, college (required), batch, room_code, created_at
+    announcements: "announcements" // id, title, message (required), category, priority, author_id (required), room_code, recipients, pinned, requires_response, due_at, created_at
+  };
+  const ROOM_LINK_COL = "room_code"; // confirmed FK column on both profiles and announcements → rooms(code)
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let pendingAction = null; // 'create' | 'join' — what to open right after auth succeeds
+  let currentRoom = null;
+  let currentRole = null;
+
+  // ---------- helpers ----------
+  function $(id){ return document.getElementById(id); }
+  function showMsg(el, text, type){
+    el.textContent = text;
+    el.className = "form-msg " + (type || "info");
+  }
+  function clearMsg(el){
+    el.textContent = "";
+    el.className = "form-msg";
+  }
+  function openOverlay(id){ $(id).classList.add("open"); }
+  function closeOverlay(id){ $(id).classList.remove("open"); }
+  function genRoomCode(){
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let out = "";
+    for (let i=0;i<6;i++) out += chars[Math.floor(Math.random()*chars.length)];
+    return out;
+  }
+  async function sha256(text){
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest("SHA-256", enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+  function setLoading(btn, loading, label){
+    if (loading){
+      btn.dataset.label = btn.textContent;
+      btn.innerHTML = '<span class="spinner"></span>' + (label || "Please wait…");
+      btn.disabled = true;
+    } else {
+      btn.textContent = btn.dataset.label || label;
+      btn.disabled = false;
+    }
+  }
+  function friendlyError(err){
+    const msg = (err && err.message) ? err.message : String(err || "Something went wrong.");
+    if (/invalid login credentials/i.test(msg)) return "Wrong email or password. Try again.";
+    if (/user already registered/i.test(msg)) return "That email's already registered — try signing in instead.";
+    if (/network/i.test(msg)) return "Can't reach the server. Check your connection and try again.";
+    return msg;
+  }
+  // ---------- TOAST POPUP ----------
+  function showToast(text, type){
+    const stack = $("toastStack");
+    if (!stack) { return; }
+    const toast = document.createElement("div");
+    toast.className = "toast" + (type === "success" ? " toast-success" : "");
+    const label = document.createElement("span");
+    label.textContent = text;
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "toast-close";
+    closeBtn.setAttribute("aria-label", "Dismiss");
+    closeBtn.textContent = "✕";
+    toast.appendChild(label);
+    toast.appendChild(closeBtn);
+    stack.appendChild(toast);
+    requestAnimationFrame(()=> toast.classList.add("show"));
+    const remove = ()=>{
+      toast.classList.remove("show");
+      setTimeout(()=> toast.remove(), 220);
+    };
+    closeBtn.addEventListener("click", remove);
+    setTimeout(remove, 4000);
+  }
+
+  // ---------- AUTH MODAL ----------
+  let authMode = "signin"; // 'signin' | 'signup'
+  $("navSignInBtn").addEventListener("click", (e)=>{ e.preventDefault(); pendingAction=null; openAuth("signin"); });
+  $("authClose").addEventListener("click", ()=> closeOverlay("authOverlay"));
+  $("authPassword").addEventListener("input", ()=> $("authPassword").classList.remove("field-error"));
+  $("authOverlay").addEventListener("click", (e)=>{ if(e.target.id==="authOverlay") closeOverlay("authOverlay"); });
+
+  function openAuth(mode){
+    authMode = mode || "signin";
+    setTab(authMode);
+    clearMsg($("authMsg"));
+    $("authForm").reset();
+    showAuthView("main");
+    openOverlay("authOverlay");
+  }
+  function setTab(mode){
+    authMode = mode;
+    $("tabSignIn").classList.toggle("active", mode==="signin");
+    $("tabSignUp").classList.toggle("active", mode==="signup");
+    $("authSubmitBtn").textContent = mode==="signin" ? "Sign in" : "Create account";
+  }
+  $("tabSignIn").addEventListener("click", ()=> setTab("signin"));
+  $("tabSignUp").addEventListener("click", ()=> setTab("signup"));
+
+  // ---------- forgot password / reset password sub-views ----------
+  function showAuthView(view){
+    $("authMainView").style.display = view === "main" ? "block" : "none";
+    $("authForgotView").style.display = view === "forgot" ? "block" : "none";
+    $("authResetView").style.display = view === "reset" ? "block" : "none";
+  }
+  $("showForgotLink").addEventListener("click", (e)=>{
+    e.preventDefault();
+    clearMsg($("forgotMsg"));
+    $("forgotForm").reset();
+    showAuthView("forgot");
+  });
+  $("backToSignInLink").addEventListener("click", (e)=>{
+    e.preventDefault();
+    showAuthView("main");
+  });
+  $("forgotForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const msgEl = $("forgotMsg");
+    const btn = $("forgotSubmitBtn");
+    clearMsg(msgEl);
+    const email = $("forgotEmail").value.trim();
+    setLoading(btn, true, "Sending…");
+    try {
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+      if (error) throw error;
+      showMsg(msgEl, "Reset link sent — check your email (and spam folder).", "success");
+    } catch(err){
+      showMsg(msgEl, friendlyError(err), "error");
+    } finally {
+      setLoading(btn, false, "Send reset link");
+    }
+  });
+  $("resetForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const msgEl = $("resetMsg");
+    const btn = $("resetSubmitBtn");
+    clearMsg(msgEl);
+    const password = $("resetPassword").value;
+    setLoading(btn, true, "Updating…");
+    try {
+      const { error } = await sb.auth.updateUser({ password });
+      if (error) throw error;
+      showMsg(msgEl, "Password updated — you're signed in.", "success");
+      setTimeout(()=>{ closeOverlay("authOverlay"); afterAuthSuccess(); }, 900);
+    } catch(err){
+      showMsg(msgEl, friendlyError(err), "error");
+    } finally {
+      setLoading(btn, false, "Update password");
+    }
+  });
+  // Supabase redirects back with a recovery session — detect it and open the reset view
+  sb.auth.onAuthStateChange((event)=>{
+    if (event === "PASSWORD_RECOVERY"){
+      showAuthView("reset");
+      openOverlay("authOverlay");
+    }
+  });
+
+  $("authForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const email = $("authEmail").value.trim();
+    const password = $("authPassword").value;
+    const msgEl = $("authMsg");
+    const btn = $("authSubmitBtn");
+    clearMsg(msgEl);
+    setLoading(btn, true, authMode==="signin" ? "Signing in…" : "Creating account…");
+    try {
+      let result;
+      if (authMode === "signin"){
+        result = await sb.auth.signInWithPassword({ email, password });
+      } else {
+        result = await sb.auth.signUp({ email, password });
+      }
+      if (result.error) throw result.error;
+      if (authMode === "signup" && !result.data.session){
+        showMsg(msgEl, "Account created — check your email to confirm, then sign in.", "success");
+        setLoading(btn, false);
+        setTab("signin");
+        return;
+      }
+      closeOverlay("authOverlay");
+      afterAuthSuccess();
+    } catch(err){
+      const friendly = friendlyError(err);
+      showMsg(msgEl, friendly, "error");
+      showToast(friendly, "error");
+      const pwField = $("authPassword");
+      pwField.classList.add("field-error", "field-shake");
+      pwField.value = "";
+      pwField.focus();
+      setTimeout(()=> pwField.classList.remove("field-shake"), 450);
+    } finally {
+      setLoading(btn, false);
+    }
+  });
+
+  function afterAuthSuccess(){
+    if (pendingAction === "create") { openOverlay("createOverlay"); pendingAction = null; refreshNavForSession(); return; }
+    if (pendingAction === "join") { openOverlay("joinOverlay"); pendingAction = null; refreshNavForSession(); return; }
+    pendingAction = null;
+    refreshNavForSession();
+    restoreRoomIfAny(); // signed in directly (not via a create/join click) — drop them into their room if they have one
+  }
+
+  // ---------- SESSION / ROOM PERSISTENCE ----------
+  // If the signed-in user already has a room_code on their profile, load that room's
+  // dashboard automatically — so refreshing the page doesn't lose their place.
+  async function restoreRoomIfAny(){
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session) return;
+      const { data: profile, error: profErr } = await sb
+        .from(TABLES.profiles)
+        .select("*")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      if (profErr) { console.error("[Campus One] Could not load your profile (likely an RLS SELECT policy issue on 'profiles'):", profErr); return; }
+      if (!profile || !profile[ROOM_LINK_COL]) return;
+
+      const { data: room, error: roomErr } = await sb
+        .from(TABLES.rooms)
+        .select("*")
+        .eq("code", profile[ROOM_LINK_COL])
+        .maybeSingle();
+      if (roomErr) { console.error("[Campus One] Could not load your room (likely an RLS SELECT policy issue on 'rooms'):", roomErr); return; }
+      if (!room) return;
+
+      currentProfile = profile;
+      enterRoom(room, profile.role === "cr" ? "cr" : "student");
+    } catch(e){
+      // Unexpected failure (network, etc.) — logged so it's diagnosable instead of silently
+      // dropping the user back on the marketing page with no trace.
+      console.error("[Campus One] restoreRoomIfAny failed:", e);
+    }
+  }
+
+  // ---------- CTA WIRING ----------
+  async function handleCreateClick(){
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session){ pendingAction="create"; openAuth("signin"); return; }
+    clearMsg($("createMsg"));
+    $("createForm").reset();
+    openOverlay("createOverlay");
+  }
+  async function handleJoinClick(){
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session){ pendingAction="join"; openAuth("signin"); return; }
+    clearMsg($("joinMsg"));
+    $("joinForm").reset();
+    openOverlay("joinOverlay");
+  }
+  ["heroCreateBtn","finalCreateBtn"].forEach(id => $(id).addEventListener("click", handleCreateClick));
+  ["heroJoinBtn","finalJoinBtn"].forEach(id => $(id).addEventListener("click", handleJoinClick));
+  $("createClose").addEventListener("click", ()=> closeOverlay("createOverlay"));
+  $("joinClose").addEventListener("click", ()=> closeOverlay("joinOverlay"));
+  $("createOverlay").addEventListener("click", (e)=>{ if(e.target.id==="createOverlay") closeOverlay("createOverlay"); });
+  $("joinOverlay").addEventListener("click", (e)=>{ if(e.target.id==="joinOverlay") closeOverlay("joinOverlay"); });
+
+  // ---------- CREATE ROOM ----------
+  $("createForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const msgEl = $("createMsg");
+    const btn = $("createSubmitBtn");
+    clearMsg(msgEl);
+    const name = $("createName").value.trim();
+    const college = $("createCollege").value.trim();
+    const batch = $("createBatch").value.trim();
+    const pin = $("createPin").value;
+    if (!name || !college || !batch || pin.length < 4){
+      showMsg(msgEl, "Fill in all fields — PIN needs at least 4 characters.", "error");
+      return;
+    }
+    setLoading(btn, true, "Creating room…");
+    try {
+      const { data:{ user } } = await sb.auth.getUser();
+      if (!user) throw new Error("Please sign in again.");
+      const roomCode = genRoomCode();
+      const pinHash = await sha256(pin);
+
+      const { data: room, error: roomErr } = await sb
+        .from(TABLES.rooms)
+        .insert({ code: roomCode, college, batch, cr_pin_hash: pinHash, created_by: user.id })
+        .select()
+        .single();
+      if (roomErr) throw roomErr;
+
+      const profileUpdate = { id: user.id, role: "cr", full_name: name, college: college };
+      profileUpdate[ROOM_LINK_COL] = room.code;
+      const { error: profErr } = await sb
+        .from(TABLES.profiles)
+        .upsert(profileUpdate);
+      if (profErr) throw profErr;
+
+      closeOverlay("createOverlay");
+      currentProfile = profileUpdate;
+      enterRoom(room, "cr");
+    } catch(err){
+      showMsg(msgEl, "Couldn't create the room — " + friendlyError(err) + " (If this persists, your Supabase table/column names may differ from what this page expects — check the README.)", "error");
+    } finally {
+      setLoading(btn, false, "Create room");
+    }
+  });
+
+  // ---------- JOIN ROOM ----------
+  $("joinForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const msgEl = $("joinMsg");
+    const btn = $("joinSubmitBtn");
+    clearMsg(msgEl);
+    const name = $("joinName").value.trim();
+    const code = $("joinCode").value.trim().toUpperCase();
+    if (!name){ showMsg(msgEl, "Enter your name.", "error"); return; }
+    if (!code){ showMsg(msgEl, "Enter a room code.", "error"); return; }
+    setLoading(btn, true, "Joining…");
+    try {
+      const { data:{ user } } = await sb.auth.getUser();
+      if (!user) throw new Error("Please sign in again.");
+
+      const { data: room, error: roomErr } = await sb
+        .from(TABLES.rooms)
+        .select("*")
+        .eq("code", code)
+        .maybeSingle();
+      if (roomErr) throw roomErr;
+      if (!room){
+        showMsg(msgEl, "No room found with that code. Double-check it with your CR.", "error");
+        setLoading(btn, false, "Join room");
+        return;
+      }
+
+      const profileUpdate = { id: user.id, role: "student", full_name: name, college: room.college };
+      profileUpdate[ROOM_LINK_COL] = room.code;
+      const { error: profErr } = await sb
+        .from(TABLES.profiles)
+        .upsert(profileUpdate);
+      if (profErr) throw profErr;
+
+      closeOverlay("joinOverlay");
+      currentProfile = profileUpdate;
+      enterRoom(room, "student");
+    } catch(err){
+      showMsg(msgEl, "Couldn't join — " + friendlyError(err), "error");
+    } finally {
+      setLoading(btn, false, "Join room");
+    }
+  });
+
+  // ---------- ROOM DASHBOARD ----------
+  const NOTES_TABLE = "notes";           // guessed — title, subject, price, content, room_code, uploader_id, created_at
+  const CR_POSTS_TABLE = "cr_posts";     // guessed — title, message, pinned, room_code, college, created_by, created_at
+  let cachedAnnouncements = [];
+  let currentProfile = null;
+
+  async function enterRoom(room, role){
+    currentRoom = room;
+    currentRole = role;
+    document.body.classList.add("app-mode");
+    $("appView").classList.add("open");
+    $("appRoomLabel").textContent = (room.college || "ROOM") + " · " + (room.batch || "");
+    $("appRoomCode").textContent = "#" + room.code;
+    $("appRoleBadge").style.display = role === "cr" ? "inline-block" : "none";
+    $("tabComposeBtn").style.display = role === "cr" ? "inline-block" : "none";
+    $("manageRoomBlock").style.display = role === "cr" ? "block" : "none";
+    $("crBoardComposer").style.display = role === "cr" ? "block" : "none";
+    $("notesUploadBox").style.display = "block";
+
+    if (role === "cr"){
+      $("manageRoomCode").textContent = "#" + room.code;
+      $("freezeRoomToggle").checked = !!room.cr_locked;
+    }
+
+    setupTabs();
+    await loadAnnouncements();
+    renderToday();
+    renderInsights();
+    renderProfile();
+    loadCrBoard();
+    loadNotes();
+  }
+
+  function setupTabs(){
+    const tabs = document.querySelectorAll(".app-tab");
+    tabs.forEach(t => {
+      t.onclick = ()=>{
+        tabs.forEach(x => x.classList.remove("active"));
+        t.classList.add("active");
+        document.querySelectorAll(".app-panel").forEach(p => p.classList.remove("active"));
+        $("panel-" + t.dataset.tab).classList.add("active");
+      };
+    });
+  }
+
+  async function loadAnnouncements(){
+    const wrap = $("annListWrap");
+    wrap.innerHTML = '<div class="ann-empty">Loading announcements…</div>';
+    try {
+      const { data, error } = await sb
+        .from(TABLES.announcements)
+        .select("*")
+        .eq(ROOM_LINK_COL, currentRoom.code)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      cachedAnnouncements = data || [];
+      renderFeed();
+      renderToday();
+      renderInsights();
+    } catch(err){
+      wrap.innerHTML = '<div class="ann-empty">Couldn\'t load announcements — ' + friendlyError(err) + '</div>';
+      cachedAnnouncements = [];
+    }
+  }
+
+  function applyFeedFilters(list){
+    const cat = $("filterCategory").value;
+    const audience = $("filterAudience").value;
+    const sort = $("filterSort").value;
+    let out = list.slice();
+    if (cat) out = out.filter(a => (a.category||"") === cat);
+    if (audience === "pinned") out = out.filter(a => a.pinned);
+    if (audience === "urgent") out = out.filter(a => (a.priority||"").toLowerCase()==="urgent");
+    if (sort === "priority"){
+      const rank = { urgent:0, important:1, normal:2 };
+      out.sort((a,b) => (rank[(a.priority||"normal").toLowerCase()]??2) - (rank[(b.priority||"normal").toLowerCase()]??2));
+    } else {
+      out.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+    return out;
+  }
+
+  function renderFeed(){
+    const wrap = $("annListWrap");
+    const filtered = applyFeedFilters(cachedAnnouncements);
+    if (filtered.length === 0){
+      wrap.innerHTML = '<div class="ann-empty">' + (cachedAnnouncements.length===0 ? ("No announcements yet" + (currentRole==="cr" ? " — post the first one from Compose." : " — check back soon.")) : "No announcements match these filters.") + '</div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="ann-list">' + filtered.map(renderAnn).join("") + "</div>";
+  }
+  ["filterCategory","filterSort","filterAudience"].forEach(id => $(id).addEventListener("change", renderFeed));
+
+  function categoryClass(cat){
+    return "cat-" + (cat||"academic").toLowerCase().replace(/[^a-z]/g,"");
+  }
+  function renderAnn(a){
+    const cat = a.category || "Academic";
+    const priority = (a.priority || "Normal");
+    const date = a.created_at ? new Date(a.created_at).toLocaleDateString(undefined,{month:"short",day:"numeric"}) : "";
+    const due = a.due_at ? (" · Due " + new Date(a.due_at).toLocaleDateString(undefined,{month:"short",day:"numeric"})) : "";
+    return '<div class="ann-card">'
+      + '<div class="ann-top"><div class="ann-badges">'
+      + (a.pinned ? '<span class="ann-cat" style="background:var(--marigold);color:var(--ink);">Pinned</span>' : '')
+      + '<span class="ann-cat ' + categoryClass(cat) + '">' + escapeHtml(cat) + '</span>'
+      + (priority.toLowerCase()==="urgent" ? '<span class="ann-cat priority-urgent">Urgent</span>' : '')
+      + (priority.toLowerCase()==="important" ? '<span class="ann-cat" style="background:rgba(255,177,0,0.16);color:var(--marigold-deep);">Important</span>' : '')
+      + '</div><span class="ann-date">' + date + due + '</span></div>'
+      + '<div class="ann-body">' + escapeHtml(a.message || "") + '</div>'
+      + (a.requires_response ? '<div class="field-hint" style="margin-top:8px;">Asks for a response (attending / maybe / not attending)</div>' : '')
+      + '</div>';
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  // ---- TODAY tab ----
+  const GREETINGS = ["Hey", "What's up,", "Heyyy", "Yo", "Welcome back,"];
+  function renderToday(){
+    const firstName = ((currentProfile && currentProfile.full_name) || "").trim().split(" ")[0];
+    const greet = randomOf(GREETINGS);
+    $("greetingText").textContent = firstName ? (greet + " " + firstName + " 👋") : "Hey there 👋";
+    $("greetingSub").textContent = currentRole === "cr"
+      ? "Here's how your room is doing today."
+      : "Here's what's new in your room today.";
+
+    $("statTotal").textContent = cachedAnnouncements.length;
+    $("statUrgent").textContent = cachedAnnouncements.filter(a => (a.priority||"").toLowerCase()==="urgent").length;
+    $("statPinned").textContent = cachedAnnouncements.filter(a => a.pinned).length;
+    $("statResponses").textContent = cachedAnnouncements.filter(a => a.requires_response).length;
+    const preview = cachedAnnouncements.slice(0,3);
+    const wrap = $("todayFeedPreview");
+    wrap.innerHTML = preview.length
+      ? '<div class="ann-list">' + preview.map(renderAnn).join("") + "</div>"
+      : '<div class="ann-empty">Nothing posted yet.</div>';
+  }
+
+  $("copyRoomCodeBtn").addEventListener("click", ()=>{
+    navigator.clipboard.writeText(currentRoom.code).then(()=>{
+      const btn = $("copyRoomCodeBtn");
+      const old = btn.textContent;
+      btn.textContent = "Copied!";
+      setTimeout(()=> btn.textContent = old, 1500);
+    });
+  });
+
+  $("freezeRoomToggle").addEventListener("change", async (e)=>{
+    const checked = e.target.checked;
+    try {
+      const { error } = await sb.from(TABLES.rooms).update({ cr_locked: checked }).eq("code", currentRoom.code);
+      if (error) throw error;
+      currentRoom.cr_locked = checked;
+    } catch(err){
+      e.target.checked = !checked;
+      showMsg($("appMsg"), "Couldn't update room lock — " + friendlyError(err), "error");
+    }
+  });
+
+  // ---- COMPOSE tab ----
+  $("postBody").addEventListener("input", ()=>{
+    $("postBodyCount").textContent = $("postBody").value.length + "/280";
+  });
+
+  $("postSubmitBtn").addEventListener("click", async ()=>{
+    const msgEl = $("appMsg");
+    clearMsg(msgEl);
+    const message = $("postBody").value.trim();
+    if (!message){ showMsg(msgEl, "Write something before posting.", "error"); return; }
+    const btn = $("postSubmitBtn");
+    setLoading(btn, true, "Posting…");
+    try {
+      const { data:{ user } } = await sb.auth.getUser();
+      const dueVal = $("postDue").value;
+      const annInsert = {
+        message,
+        category: $("postCategory").value,
+        priority: $("postPriority").value,
+        pinned: $("postPinned").checked,
+        requires_response: $("postRequiresResponse").checked,
+        due_at: dueVal ? new Date(dueVal + "T23:59:00").toISOString() : null,
+        author_id: user.id
+      };
+      annInsert[ROOM_LINK_COL] = currentRoom.code;
+      const { error } = await sb.from(TABLES.announcements).insert(annInsert);
+      if (error) throw error;
+      $("postBody").value = "";
+      $("postBodyCount").textContent = "0/280";
+      $("postDue").value = "";
+      $("postPinned").checked = false;
+      $("postRequiresResponse").checked = false;
+      await loadAnnouncements();
+      showMsg(msgEl, "Announcement sent.", "success");
+    } catch(err){
+      showMsg(msgEl, "Couldn't post — " + friendlyError(err), "error");
+    } finally {
+      setLoading(btn, false, "Send announcement");
+    }
+  });
+
+  // ---- CR BOARD tab (schema unconfirmed — degrades gracefully) ----
+  async function loadCrBoard(){
+    const wrap = $("crBoardListWrap");
+    wrap.innerHTML = '<div class="ann-empty">Loading CR Board…</div>';
+    try {
+      const { data, error } = await sb
+        .from(CR_POSTS_TABLE)
+        .select("*")
+        .eq(ROOM_LINK_COL, currentRoom.code)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (!data || data.length === 0){
+        wrap.innerHTML = '<div class="ann-empty">No CR Board posts yet.</div>';
+        return;
+      }
+      wrap.innerHTML = '<div class="ann-list">' + data.map(p =>
+        '<div class="ann-card">'
+        + '<div class="ann-top"><div class="ann-badges">' + (p.pinned ? '<span class="ann-cat" style="background:var(--marigold);color:var(--ink);">Pinned</span>' : '') + '</div>'
+        + '<span class="ann-date">' + (p.created_at ? new Date(p.created_at).toLocaleDateString(undefined,{month:"short",day:"numeric"}) : "") + '</span></div>'
+        + (p.title ? '<div style="font-weight:600;margin-bottom:6px;">' + escapeHtml(p.title) + '</div>' : '')
+        + '<div class="ann-body">' + escapeHtml(p.message || "") + '</div>'
+        + '</div>'
+      ).join("") + "</div>";
+    } catch(err){
+      wrap.innerHTML = '<div class="degrade-note">CR Board isn\'t connected yet — this needs the <code>' + CR_POSTS_TABLE + '</code> table\'s exact column names confirmed. (' + friendlyError(err) + ')</div>';
+    }
+  }
+
+  $("crPostSubmitBtn") && $("crPostSubmitBtn").addEventListener("click", async ()=>{
+    const msgEl = $("appMsg");
+    clearMsg(msgEl);
+    const title = $("crPostTitle").value.trim();
+    const message = $("crPostBody").value.trim();
+    if (!message){ showMsg(msgEl, "Write something before posting.", "error"); return; }
+    const btn = $("crPostSubmitBtn");
+    setLoading(btn, true, "Posting…");
+    try {
+      const { data:{ user } } = await sb.auth.getUser();
+      const insertObj = { title: title || null, message, pinned: $("crPostPinned").checked, college: currentRoom.college, created_by: user.id };
+      insertObj[ROOM_LINK_COL] = currentRoom.code;
+      const { error } = await sb.from(CR_POSTS_TABLE).insert(insertObj);
+      if (error) throw error;
+      $("crPostTitle").value = ""; $("crPostBody").value = ""; $("crPostPinned").checked = false;
+      await loadCrBoard();
+    } catch(err){
+      showMsg(msgEl, "Couldn't post to CR Board — " + friendlyError(err) + " (schema likely needs confirming — see README)", "error");
+    } finally {
+      setLoading(btn, false, "Post to CR Board");
+    }
+  });
+
+  // ---- AI STUDIO (premium, demo-mode — no external API key configured) ----
+  let aiUnlocked = false;
+  const FUN_CORRECT = ["yasss correct! 🔥","let's gooo ✅","big brain move 🧠","W answer, fr fr","no notes, straight facts 💯","called it, nice!"];
+  const FUN_INCORRECT = ["oops bestie, not quite 💀","nahh that ain't it chief 😭","big oof, but we move 🚀","L take, run it back next time","close-ish, but no 🫠","not this time, champ"];
+  function randomOf(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  $("aiUnlockBtn").addEventListener("click", async ()=>{
+    const btn = $("aiUnlockBtn");
+    setLoading(btn, true, "Processing payment…");
+    // Demo unlock — simulates the ₹20 payment step. Wire this to Razorpay's
+    // checkout + verification (per your PRD) once you have live Razorpay keys.
+    await new Promise(res => setTimeout(res, 700));
+    aiUnlocked = true;
+    $("studioUnlockRow").style.display = "none";
+    $("studioUnlockedRow").style.display = "block";
+    $("studioToolArea").style.display = "block";
+    setLoading(btn, false, "Unlock AI Studio · ₹20");
+  });
+
+  // sub-tab switching within AI Studio
+  document.querySelectorAll(".studio-subtab").forEach(t => {
+    t.addEventListener("click", ()=>{
+      document.querySelectorAll(".studio-subtab").forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      document.querySelectorAll(".studio-subpanel").forEach(p => p.classList.remove("active"));
+      $("subpanel-" + t.dataset.subtab).classList.add("active");
+    });
+  });
+
+  $("aiSummarizeBtn").addEventListener("click", ()=>{
+    const content = $("aiNoteContent").value.trim();
+    if (!content){ alert("paste some notes first bestie 👀"); return; }
+    const sentences = splitSentences(content);
+    renderAiSummary(sentences);
+    renderAiPlan(sentences);
+    renderAiQuiz(sentences);
+    $("aiResults").style.display = "block";
+  });
+
+  function splitSentences(text){
+    return text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 12);
+  }
+
+  function classifySentence(s){
+    const lower = s.toLowerCase();
+    if (/\d/.test(s)) return "data";
+    if (/ is defined as| refers to| means | is the process of/.test(lower)) return "definition";
+    return "concept";
+  }
+
+  function renderAiSummary(sentences){
+    const scored = sentences.map(s => ({ s, score: s.length + (/\d/.test(s) ? 20 : 0) }));
+    scored.sort((a,b)=> b.score - a.score);
+    const top = scored.slice(0, Math.min(6, Math.max(3, Math.ceil(sentences.length*0.4))));
+    const wrap = $("aiSummaryOut");
+    if (top.length === 0){ wrap.innerHTML = '<div class="ann-empty">Not enough text to summarize.</div>'; return; }
+    wrap.innerHTML = top.map(({s}) => {
+      const tag = classifySentence(s);
+      const label = tag === "definition" ? "Definition" : tag === "data" ? "Key data" : "Concept";
+      return '<div class="ai-summary-item"><span class="ai-summary-tag ' + tag + '">' + label + '</span><span>' + escapeHtml(s) + '</span></div>';
+    }).join("");
+  }
+
+  function renderAiPlan(sentences){
+    const wrap = $("aiPlanOut");
+    if (sentences.length === 0){ wrap.innerHTML = '<div class="ann-empty">Not enough text to plan.</div>'; return; }
+    const days = Math.min(5, Math.max(2, Math.ceil(sentences.length / 4)));
+    const perDay = Math.ceil(sentences.length / days);
+    let html = "";
+    for (let d=0; d<days; d++){
+      const chunk = sentences.slice(d*perDay, (d+1)*perDay);
+      if (chunk.length === 0) continue;
+      html += '<div class="plan-day"><span class="pd-tag">Day ' + (d+1) + '</span><span>' + escapeHtml(chunk.join(" ")) + '</span></div>';
+    }
+    html += '<div class="plan-day"><span class="pd-tag">Day ' + (days+1) + '</span><span>Final review — skim all sections above and attempt the practice quiz.</span></div>';
+    wrap.innerHTML = html;
+  }
+
+  let currentQuiz = [];
+  const STOPWORDS = new Set(["the","and","that","this","with","from","have","which","were","been","their","about","would","there","these","other","into","such","when","where","what","some","more","also","than","then","them","they","your","will","each","only","very","just","over","most","much","many","after","before","because","while","during","between"]);
+
+  function renderAiQuiz(sentences){
+    const wrap = $("aiQuizOut");
+    $("aiQuizResults").style.display = "none";
+    $("aiQuizResults").innerHTML = "";
+    const candidates = sentences.filter(s => s.split(" ").length >= 6).slice(0, 5);
+    if (candidates.length === 0){
+      wrap.innerHTML = '<div class="ann-empty">Not enough text to build a quiz.</div>';
+      $("aiQuizSubmitBtn").style.display = "none";
+      currentQuiz = [];
+      return;
+    }
+    // build a word pool across all sentences for distractors
+    const wordPool = [...new Set(
+      sentences.join(" ").replace(/[.,!?;:()"]/g,"").split(/\s+/)
+        .filter(w => w.length > 4 && !STOPWORDS.has(w.toLowerCase()))
+    )];
+
+    currentQuiz = candidates.map((s, i) => {
+      const words = s.replace(/[.,!?]/g,"").split(" ").filter(w => w.length > 4 && !STOPWORDS.has(w.toLowerCase()));
+      const correct = (words.sort((a,b)=>b.length-a.length)[0] || words[0] || "answer");
+      const prompt = s.replace(new RegExp("\\b" + correct.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + "\\b", "i"), "_____");
+      const distractorPool = wordPool.filter(w => w.toLowerCase() !== correct.toLowerCase());
+      const distractors = [];
+      while (distractors.length < 3 && distractorPool.length){
+        const idx = Math.floor(Math.random()*distractorPool.length);
+        const pick = distractorPool.splice(idx,1)[0];
+        if (!distractors.includes(pick)) distractors.push(pick);
+      }
+      while (distractors.length < 3) distractors.push("none of these");
+      const options = [correct, ...distractors];
+      for (let k = options.length-1; k>0; k--){ const j = Math.floor(Math.random()*(k+1)); [options[k],options[j]]=[options[j],options[k]]; }
+      return { id: "q"+i, prompt, options, correctIndex: options.indexOf(correct), tag: classifySentence(s) };
+    });
+
+    wrap.innerHTML = currentQuiz.map((q, i) =>
+      '<div class="quiz-item" id="qcard-' + q.id + '">'
+      + '<div class="quiz-q">Q' + (i+1) + '. ' + escapeHtml(q.prompt) + '</div>'
+      + q.options.map((opt, oi) =>
+          '<label class="quiz-option"><input type="radio" name="' + q.id + '" value="' + oi + '"> ' + escapeHtml(opt) + '</label>'
+        ).join("")
+      + '<div class="quiz-feedback" id="fb-' + q.id + '"></div>'
+      + '</div>'
+    ).join("");
+    $("aiQuizSubmitBtn").style.display = "inline-flex";
+  }
+
+  $("aiQuizSubmitBtn").addEventListener("click", ()=>{
+    if (currentQuiz.length === 0) return;
+    let correctCount = 0;
+    const weakTags = {};
+    currentQuiz.forEach(q => {
+      const picked = document.querySelector('input[name="'+q.id+'"]:checked');
+      const pickedIdx = picked ? Number(picked.value) : -1;
+      const isCorrect = pickedIdx === q.correctIndex;
+      if (isCorrect) correctCount++;
+      else weakTags[q.tag] = (weakTags[q.tag]||0) + 1;
+
+      const card = $("qcard-" + q.id);
+      card.classList.add(isCorrect ? "quiz-correct" : "quiz-incorrect");
+      card.querySelectorAll("input").forEach(inp => inp.disabled = true);
+      $("fb-"+q.id).innerHTML = isCorrect
+        ? randomOf(FUN_CORRECT)
+        : randomOf(FUN_INCORRECT) + " — correct answer: <strong>" + escapeHtml(q.options[q.correctIndex]) + "</strong>" + (pickedIdx===-1 ? " (didn't even pick one 👀)" : "");
+    });
+
+    const total = currentQuiz.length;
+    const pct = Math.round((correctCount/total)*100);
+    const tagLabel = { concept:"Concepts", definition:"Definitions", data:"Key data / numbers" };
+    const weakList = Object.entries(weakTags).sort((a,b)=>b[1]-a[1]).map(([t]) => tagLabel[t] || t);
+
+    let vibe;
+    if (pct === 100) vibe = "PERFECT SCORE. absolute icon behavior 👑";
+    else if (pct >= 70) vibe = "solid run, you're so back 📈";
+    else if (pct >= 40) vibe = "mid but fixable, let's lock in 🔒";
+    else vibe = "rough one, but that's what revision's for 🫡";
+
+    $("aiQuizResults").style.display = "block";
+    $("aiQuizResults").innerHTML =
+      '<div class="quiz-score">' + correctCount + ' / ' + total + ' (' + pct + '%) — ' + vibe + '</div>'
+      + (weakList.length
+          ? '<div class="field-hint" style="margin-top:8px;">Areas to work on: ' + weakList.map(escapeHtml).join(", ") + '</div>'
+          : '<div class="field-hint" style="margin-top:8px;">No weak spots showing — genuinely impressive.</div>');
+    $("aiQuizSubmitBtn").style.display = "none";
+  });
+
+  // ---- DAY PLANNER (demo heuristic — describes a day, returns a structured schedule) ----
+  function parseTimeToken(str){
+    const m = str.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+    if (!m) return null;
+    let h = parseInt(m[1],10);
+    const min = m[2] ? parseInt(m[2],10) : 0;
+    const ap = (m[3]||"").toLowerCase();
+    if (ap === "pm" && h < 12) h += 12;
+    if (ap === "am" && h === 12) h = 0;
+    if (!ap && h <= 7) h += 12; // bare small numbers like "2-4" in a day context usually mean afternoon
+    return h*60 + min;
+  }
+  function fmtTime(min){
+    min = ((min % 1440) + 1440) % 1440;
+    let h = Math.floor(min/60), m = min%60;
+    const ap = h >= 12 ? "PM" : "AM";
+    let h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + (m ? ":" + String(m).padStart(2,"0") : ":00") + " " + ap;
+  }
+  function parseAnchoredEvents(text){
+    const clauses = text.split(/,|;|\.|\band\b/i).map(c=>c.trim()).filter(Boolean);
+    const events = [];
+    const rangeRe = /(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*(?:-|to|–)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i;
+    const singleRe = /(?:at\s*)?(\d{1,2}(?::\d{2})?\s*(?:am|pm))/i;
+    clauses.forEach(clause => {
+      const rangeM = clause.match(rangeRe);
+      if (rangeM){
+        const start = parseTimeToken(rangeM[1]);
+        let end = parseTimeToken(rangeM[2]);
+        if (start != null && end != null){
+          if (end <= start) end += 12*60; // handle "2-4" meaning pm range crossing am/pm parse
+          const label = clause.replace(rangeM[0], "").trim().replace(/^[-–,]+|[-–,]+$/g,"") || "Scheduled";
+          events.push({ start, end, label: capitalize(label) });
+          return;
+        }
+      }
+      const singleM = clause.match(singleRe);
+      if (singleM){
+        const start = parseTimeToken(singleM[1]);
+        if (start != null){
+          const lower = clause.toLowerCase();
+          let dur = 45;
+          if (/class|lecture|lab/.test(lower)) dur = 60;
+          if (/gym|workout|exercise|sport/.test(lower)) dur = 60;
+          if (/meeting|call/.test(lower)) dur = 30;
+          const label = clause.replace(singleM[0], "").trim().replace(/^[-–,]+|[-–,]+$/g,"") || "Scheduled";
+          events.push({ start, end: start+dur, label: capitalize(label) });
+        }
+      }
+    });
+    events.sort((a,b)=>a.start-b.start);
+    return events;
+  }
+  function capitalize(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+
+  function fillerBlock(start, end){
+    const blocks = [];
+    let cursor = start;
+    while (end - cursor > 20){
+      const hour = Math.floor(cursor/60) % 24;
+      let label = "Focused study block";
+      if (hour >= 12 && hour < 14) label = "Lunch break";
+      else if (hour >= 19 && hour < 21) label = "Dinner break";
+      else if ((cursor - start) % 150 >= 90) label = "Short break";
+      const chunk = Math.min(90, end - cursor);
+      blocks.push({ start: cursor, end: cursor+chunk, label });
+      cursor += chunk;
+    }
+    return blocks;
+  }
+
+  $("plannerGenerateBtn").addEventListener("click", ()=>{
+    const text = $("plannerInput").value.trim();
+    const wrap = $("plannerOut");
+    if (!text){ wrap.innerHTML = '<div class="ann-empty">Describe your day first.</div>'; return; }
+    const lower = text.toLowerCase();
+    const events = parseAnchoredEvents(text);
+
+    const sleepMatch = text.match(/sleep by\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
+    const dayEnd = sleepMatch ? (parseTimeToken(sleepMatch[1]) || 23*60) : 23*60;
+    const dayStart = events.length ? Math.min(7*60, events[0].start) : 7*60;
+
+    let timeline = [{ start: dayStart, end: dayStart+30, label: "Wake up & get ready" }];
+    let cursor = dayStart + 30;
+    events.forEach(ev => {
+      if (ev.start > cursor) timeline = timeline.concat(fillerBlock(cursor, ev.start));
+      timeline.push(ev);
+      cursor = Math.max(cursor, ev.end);
+    });
+    if (dayEnd > cursor) timeline = timeline.concat(fillerBlock(cursor, dayEnd));
+
+    // keyword-driven blocks, inserted if not already implied by an anchored event's label
+    const extra = [];
+    if (/assignment|deadline|submission/.test(lower) && !events.some(e=>/assignment|deadline|submission/.test(e.label.toLowerCase()))){
+      extra.push({ label: "Assignment work" });
+    }
+    if (/exam|test\b/.test(lower) && !events.some(e=>/exam|test/.test(e.label.toLowerCase()))){
+      extra.push({ label: "Exam revision" });
+    }
+    if (/gym|workout|exercise/.test(lower) && !events.some(e=>/gym|workout|exercise/.test(e.label.toLowerCase()))){
+      extra.push({ label: "Workout" });
+    }
+    // slot extras into existing study/break blocks near the evening, replacing generic labels
+    let extraIdx = 0;
+    for (let i = timeline.length-1; i >= 0 && extraIdx < extra.length; i--){
+      if (/study block|short break/i.test(timeline[i].label)){
+        timeline[i].label = extra[extraIdx].label;
+        extraIdx++;
+      }
+    }
+    timeline.push({ start: dayEnd, end: dayEnd+30, label: "Wind down & sleep" });
+
+    wrap.innerHTML = '<div class="degrade-note" style="margin-bottom:16px;">Demo heuristic — reads times you mentioned and fills the gaps. Connect a real AI model for smarter, more personalized planning.</div>'
+      + timeline.map(b => '<div class="planner-block"><span class="planner-time">' + fmtTime(b.start) + ' – ' + fmtTime(b.end) + '</span><span>' + escapeHtml(b.label) + '</span></div>').join("");
+  });
+
+  // ---- NOTES tab (schema unconfirmed — degrades gracefully) ----
+  async function loadNotes(){
+    const wrap = $("notesListWrap");
+    wrap.innerHTML = '<div class="ann-empty">Loading notes…</div>';
+    try {
+      const { data, error } = await sb
+        .from(NOTES_TABLE)
+        .select("*")
+        .eq(ROOM_LINK_COL, currentRoom.code)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (!data || data.length === 0){
+        wrap.innerHTML = '<div class="ann-empty">No notes uploaded yet.</div>';
+        return;
+      }
+      wrap.innerHTML = '<div class="ann-list">' + data.map(n =>
+        '<div class="ann-card"><div class="ann-top">'
+        + '<div style="font-weight:600;">' + escapeHtml(n.title || "Untitled") + '</div>'
+        + '<span class="ann-cat">₹' + escapeHtml(String(n.price ?? 20)) + '</span>'
+        + '</div><div class="ann-body">' + escapeHtml(n.subject || "") + '</div></div>'
+      ).join("") + "</div>";
+    } catch(err){
+      wrap.innerHTML = '<div class="degrade-note">Notes marketplace isn\'t connected yet — this needs the <code>' + NOTES_TABLE + '</code> table\'s exact column names confirmed, plus Razorpay for real payments. (' + friendlyError(err) + ')</div>';
+    }
+  }
+
+  $("noteUploadBtn") && $("noteUploadBtn").addEventListener("click", async ()=>{
+    const msgEl = $("appMsg");
+    clearMsg(msgEl);
+    const title = $("noteTitle").value.trim();
+    const subject = $("noteSubject").value.trim();
+    const content = $("noteContent").value.trim();
+    const price = Number($("notePrice").value) || 20;
+    if (!title || !content){ showMsg(msgEl, "Add a title and some notes content.", "error"); return; }
+    const btn = $("noteUploadBtn");
+    setLoading(btn, true, "Uploading…");
+    try {
+      const { data:{ user } } = await sb.auth.getUser();
+      const insertObj = { title, subject, content, price, uploader_id: user.id };
+      insertObj[ROOM_LINK_COL] = currentRoom.code;
+      const { error } = await sb.from(NOTES_TABLE).insert(insertObj);
+      if (error) throw error;
+      $("noteTitle").value = ""; $("noteSubject").value = ""; $("noteContent").value = ""; $("notePrice").value = 20;
+      await loadNotes();
+    } catch(err){
+      showMsg(msgEl, "Couldn't upload — " + friendlyError(err) + " (schema likely needs confirming — see README)", "error");
+    } finally {
+      setLoading(btn, false, "Upload notes");
+    }
+  });
+
+  // ---- INSIGHTS tab (always works — computed from loaded announcements) ----
+  function renderInsights(){
+    const total = cachedAnnouncements.length;
+    $("insTotal").textContent = total;
+    const pct = n => total ? Math.round((n/total)*100) + "%" : "0%";
+    $("insPinnedPct").textContent = pct(cachedAnnouncements.filter(a=>a.pinned).length);
+    $("insUrgentPct").textContent = pct(cachedAnnouncements.filter(a=>(a.priority||"").toLowerCase()==="urgent").length);
+    $("insResponsePct").textContent = pct(cachedAnnouncements.filter(a=>a.requires_response).length);
+
+    const byCat = {};
+    cachedAnnouncements.forEach(a => { const c = a.category || "Academic"; byCat[c] = (byCat[c]||0) + 1; });
+    const max = Math.max(1, ...Object.values(byCat));
+    const catWrap = $("insightsByCat");
+    const entries = Object.entries(byCat);
+    const CAT_COLORS = { academic:"var(--blue)", placement:"var(--purple)", event:"var(--pink)", club:"var(--orange)", admin:"var(--ink-soft)", general:"var(--teal)", deadline:"var(--coral)" };
+    catWrap.innerHTML = entries.length ? entries.map(([cat,count]) => {
+      const color = CAT_COLORS[cat.toLowerCase()] || "var(--teal)";
+      return '<div class="cat-bar-row"><span class="cat-name">' + escapeHtml(cat) + '</span>'
+      + '<div class="cat-bar-track"><div class="cat-bar-fill" style="width:' + Math.round((count/max)*100) + '%;background:' + color + ';"></div></div>'
+      + '<span class="cat-bar-count">' + count + '</span></div>';
+    }).join("") : '<div class="ann-empty">No data yet.</div>';
+  }
+
+  // ---- PROFILE tab ----
+  function renderProfile(){
+    const wrap = $("profileDetails");
+    const email = (sb.auth.getSession && currentProfile) ? "" : "";
+    wrap.innerHTML =
+      '<div class="pd-row"><span class="pd-label">Name</span><span>' + escapeHtml((currentProfile && currentProfile.full_name) || "—") + '</span></div>'
+      + '<div class="pd-row"><span class="pd-label">Role</span><span>' + (currentRole === "cr" ? "Class Representative" : "Student") + '</span></div>'
+      + '<div class="pd-row"><span class="pd-label">College</span><span>' + escapeHtml(currentRoom.college || "—") + '</span></div>'
+      + '<div class="pd-row"><span class="pd-label">Batch</span><span>' + escapeHtml(currentRoom.batch || "—") + '</span></div>'
+      + '<div class="pd-row"><span class="pd-label">Room code</span><span>#' + escapeHtml(currentRoom.code) + '</span></div>';
+  }
+
+  $("appLogoutBtn").addEventListener("click", async ()=>{
+    await sb.auth.signOut();
+    document.body.classList.remove("app-mode");
+    $("appView").classList.remove("open");
+    currentRoom = null; currentRole = null; currentProfile = null;
+    refreshNavForSession();
+  });
+
+  // ---------- NAV STATE ----------
+  async function refreshNavForSession(){
+    const { data:{ session } } = await sb.auth.getSession();
+    const area = $("navAuthArea");
+    if (session){
+      const email = session.user.email || "";
+      const initial = email.charAt(0).toUpperCase() || "U";
+      area.innerHTML =
+        '<div class="dropdown" id="accountDropdown">'
+        + '<div class="dropdown-trigger" id="accountTrigger">'
+        + '<span class="dropdown-avatar">' + escapeHtml(initial) + '</span>'
+        + '<span>' + escapeHtml(email) + '</span>'
+        + '<span class="dropdown-caret">▾</span>'
+        + '</div>'
+        + '<div class="dropdown-menu">'
+        + '<div class="dropdown-email">' + escapeHtml(email) + '</div>'
+        + '<button type="button" class="dropdown-item" id="ddMyRoom">My room</button>'
+        + '<button type="button" class="dropdown-item" id="ddCreateRoom">Create a room</button>'
+        + '<button type="button" class="dropdown-item" id="ddJoinRoom">Join a room</button>'
+        + '<div class="dropdown-divider"></div>'
+        + '<button type="button" class="dropdown-item danger" id="ddSignOut">Sign out</button>'
+        + '</div>'
+        + '</div>';
+
+      const dd = $("accountDropdown");
+      $("accountTrigger").addEventListener("click", (e)=>{
+        e.stopPropagation();
+        dd.classList.toggle("open");
+      });
+      document.addEventListener("click", ()=> dd.classList.remove("open"));
+
+      $("ddMyRoom").addEventListener("click", ()=>{
+        dd.classList.remove("open");
+        if (currentRoom){
+          document.body.classList.add("app-mode");
+          $("appView").classList.add("open");
+        } else {
+          alert("You haven't created or joined a room yet — use \"Create a room\" or \"Join a room\" from this menu.");
+        }
+      });
+      $("ddCreateRoom").addEventListener("click", ()=>{ dd.classList.remove("open"); handleCreateClick(); });
+      $("ddJoinRoom").addEventListener("click", ()=>{ dd.classList.remove("open"); handleJoinClick(); });
+      $("ddSignOut").addEventListener("click", async ()=>{
+        dd.classList.remove("open");
+        await sb.auth.signOut();
+        document.body.classList.remove("app-mode");
+        $("appView").classList.remove("open");
+        currentRoom = null; currentRole = null;
+        refreshNavForSession();
+      });
+    } else {
+      area.innerHTML = '<a href="#" class="nav-cta" id="navSignInBtn">Sign in</a>';
+      $("navSignInBtn").addEventListener("click", (e)=>{ e.preventDefault(); pendingAction=null; openAuth("signin"); });
+    }
+  }
+
+  sb.auth.onAuthStateChange((_event, _session) => { refreshNavForSession(); });
+  refreshNavForSession();
+  restoreRoomIfAny(); // on page load — resume straight into the dashboard if this browser already had a session + a room
+})();
+</script>
 </body>
 </html>
