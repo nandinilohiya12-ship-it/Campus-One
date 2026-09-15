@@ -16,6 +16,96 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="marketing-landing" id="marketingLanding">
+        <header class="landing-nav">
+            <div class="landing-nav-inner">
+                <a class="landing-brand" href="#marketingTop">
+                    <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
+                    <strong>Campus One</strong>
+                </a>
+                <nav class="landing-links" aria-label="Marketing sections">
+                    <a href="#landingFeatures">Features</a>
+                    <a href="#landingForCrs">For CRs</a>
+                    <a href="#landingNotesAi">Notes &amp; AI</a>
+                    <a href="#landingTrust">Trust</a>
+                </nav>
+                <button class="landing-signin-btn" type="button" id="landingSignInBtn">Sign in</button>
+            </div>
+        </header>
+
+        <section class="landing-hero" id="marketingTop">
+            <div class="landing-hero-copy">
+                <span class="landing-badge"><span class="dot"></span>Built with CRs, for every batch</span>
+                <h1>Your batch,<br>finally organized<br><mark>for real.</mark></h1>
+                <p>Campus One replaces the WhatsApp group nobody can keep up with — one verified room per batch, announcements that get read and answered, and notes that don't disappear when seniors graduate.</p>
+                <div class="landing-cta-row">
+                    <button class="primary-button" type="button" id="landingCreateRoomBtn">
+                        <span>Create your room</span>
+                    </button>
+                    <button class="ghost-button" type="button" id="landingJoinRoomBtn">
+                        <span>Join with a room code</span>
+                    </button>
+                </div>
+            </div>
+            <div class="landing-hero-visual">
+                <div class="mock-room-card">
+                    <div class="mock-room-top">
+                        <span>ROOM · MIT-WPU-CSE24-A</span>
+                        <span class="mock-cr-badge">CR</span>
+                    </div>
+                    <div class="mock-room-code">#4F9K2R</div>
+                    <div class="mock-urgent-block">
+                        <span class="mock-urgent-tag">URGENT</span>
+                        <p>Viva rescheduled to Fri 10am, Lab 3. Reply attending/not by tonight.</p>
+                    </div>
+                    <div class="mock-room-stats">
+                        <span>58/61 read</span>
+                        <span>42 responded</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="landing-compare" id="landingFeatures">
+            <h2>The group chat wasn't built for this.</h2>
+            <p class="landing-compare-sub">It works fine for memes. It's a bad system for announcements that matter.</p>
+            <div class="compare-grid">
+                <div class="compare-col compare-col-light">
+                    <h3>A WhatsApp group, day 40</h3>
+                    <ul>
+                        <li><i data-lucide="x"></i><span>Viva timing buried under 200 unread messages</span></li>
+                        <li><i data-lucide="x"></i><span>No way to know who's actually seen it</span></li>
+                        <li><i data-lucide="x"></i><span>"Attending?" answered by 6 people out of 60</span></li>
+                        <li><i data-lucide="x"></i><span>Senior's notes gone the day the chat got deleted</span></li>
+                        <li><i data-lucide="x"></i><span>Anyone can post as anyone — no real CR verification</span></li>
+                    </ul>
+                </div>
+                <div class="compare-col compare-col-dark">
+                    <h3>A Campus One room</h3>
+                    <ul>
+                        <li><i data-lucide="check"></i><span>One structured post, pinned, categorized, hard to miss</span></li>
+                        <li><i data-lucide="check"></i><span>Read receipts — CR sees exactly who's seen it</span></li>
+                        <li><i data-lucide="check"></i><span>Built-in attending / maybe / not-attending responses</span></li>
+                        <li><i data-lucide="check"></i><span>Notes live in the room's marketplace, permanently</span></li>
+                        <li><i data-lucide="check"></i><span>One verified CR per room, PIN-protected</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="landing-final-cta" id="landingForCrs">
+            <h2>Ready to get your batch out of group-chat chaos?</h2>
+            <div class="landing-cta-row">
+                <button class="primary-button" type="button" id="landingCreateRoomBtn2">
+                    <span>Create your room</span>
+                </button>
+                <button class="ghost-button" type="button" id="landingJoinRoomBtn2">
+                    <span>Join with a room code</span>
+                </button>
+            </div>
+        </section>
+    </div>
+
     <section class="login-gate" id="loginGate" aria-label="Campus One login">
         <div class="login-panel">
             <div class="login-brand-strip">
