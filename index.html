@@ -685,8 +685,16 @@
   @media (max-width:700px){ .stat-row{grid-template-columns:repeat(2,1fr);} }
   .stat-card{
     border:1px solid var(--line); border-top:3px solid var(--ink); border-radius:12px; padding:18px;
-    background:var(--paper);
+    background:var(--paper); cursor:pointer; text-align:left; width:100%;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    font-family:inherit;
   }
+  .stat-card:hover, .stat-card:focus-visible{
+    transform:translateY(-3px);
+    box-shadow:0 14px 28px -14px rgba(20,23,46,0.25);
+    outline:none;
+  }
+  .stat-card:active{ transform:translateY(-1px); }
   .stat-card:nth-child(1){border-top-color:var(--blue);}
   .stat-card:nth-child(2){border-top-color:var(--coral);}
   .stat-card:nth-child(3){border-top-color:var(--marigold);}
@@ -1246,11 +1254,20 @@
             <p id="greetingSub">Here's what's going on in your room today.</p>
           </div>
           <div class="stat-row" id="statRow">
-            <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Announcements</div></div>
-            <div class="stat-card"><div class="stat-num" id="statUrgent">0</div><div class="stat-label">Urgent</div></div>
-            <div class="stat-card"><div class="stat-num" id="statPinned">0</div><div class="stat-label">Pinned</div></div>
-            <div class="stat-card"><div class="stat-num" id="statResponses">0</div><div class="stat-label">Responses collected</div></div>
+            <button type="button" class="stat-card" id="statCardTotal" data-filter="all" aria-label="View all announcements">
+              <div class="stat-num" id="statTotal">0</div><div class="stat-label">Announcements</div>
+            </button>
+            <button type="button" class="stat-card" id="statCardUrgent" data-filter="urgent" aria-label="View urgent announcements">
+              <div class="stat-num" id="statUrgent">0</div><div class="stat-label">Urgent</div>
+            </button>
+            <button type="button" class="stat-card" id="statCardPinned" data-filter="pinned" aria-label="View pinned announcements">
+              <div class="stat-num" id="statPinned">0</div><div class="stat-label">Pinned</div>
+            </button>
+            <button type="button" class="stat-card" id="statCardResponses" data-filter="responses" aria-label="View announcements collecting responses">
+              <div class="stat-num" id="statResponses">0</div><div class="stat-label">Responses collected</div>
+            </button>
           </div>
+          <p class="field-hint" id="statRowEmptyHint" style="display:none; margin-top:-10px;">No activity yet — post your first announcement from Compose to see it here.</p>
 
           <div class="panel-block" id="manageRoomBlock" style="display:none;">
             <h3>Manage room</h3>
@@ -1262,6 +1279,7 @@
                 </div>
               </div>
               <button class="btn btn-secondary" id="copyRoomCodeBtn" style="width:auto;">Copy code</button>
+              <button class="btn btn-secondary" id="shareRoomBtn" style="width:auto;">Share room</button>
             </div>
             <label class="toggle-row">
               <input type="checkbox" id="freezeRoomToggle">
@@ -1319,7 +1337,13 @@
             </div>
             <label class="toggle-row"><input type="checkbox" id="postPinned"><span>Pin this announcement — keep it above normal updates</span></label>
             <label class="toggle-row"><input type="checkbox" id="postRequiresResponse"><span>Collect responses — attending, maybe, not attending</span></label>
-            <button class="btn btn-primary" id="postSubmitBtn" style="width:auto;margin-top:12px;">Send announcement</button>
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
+              <button class="btn btn-primary" id="postSubmitBtn" style="width:auto;">Send announcement</button>
+              <button class="btn btn-secondary" id="postPreviewBtn" type="button" style="width:auto;">Preview</button>
+              <button class="btn btn-secondary" id="postClearDraftBtn" type="button" style="width:auto;">Clear draft</button>
+              <span class="field-hint" id="draftStatus"></span>
+            </div>
+            <div id="postPreviewPanel" style="display:none; margin-top:16px;"></div>
           </div>
         </div>
 
@@ -1342,6 +1366,7 @@
               <option value="all">All</option>
               <option value="pinned">Pinned</option>
               <option value="urgent">Urgent</option>
+              <option value="responses">Requires response</option>
             </select>
           </div>
           <div id="annListWrap"><div class="ann-empty">Loading announcements…</div></div>
@@ -1374,6 +1399,9 @@
           </div>
           <div class="panel-block">
             <h3>Browse notes</h3>
+            <div class="field" style="margin-bottom:14px;">
+              <input type="search" id="notesSearchInput" placeholder="Search notes by title or subject…" style="padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:13.5px; width:100%; max-width:360px;">
+            </div>
             <div id="notesListWrap"><div class="ann-empty">Loading notes…</div></div>
           </div>
           <div class="panel-block">
@@ -1480,6 +1508,16 @@
           <div class="panel-block">
             <h3>Your profile</h3>
             <div id="profileDetails"><div class="ann-empty">Loading…</div></div>
+          </div>
+          <div class="panel-block">
+            <h3>Notifications</h3>
+            <label class="toggle-row"><input type="checkbox" id="notifyUrgentToggle" checked><span>Notify me about urgent announcements</span></label>
+            <label class="toggle-row"><input type="checkbox" id="notifyPinnedToggle" checked><span>Notify me about pinned announcements</span></label>
+            <p class="field-hint" id="notifyPrefStatus" style="margin-top:8px;"></p>
+          </div>
+          <div class="panel-block">
+            <h3>Account</h3>
+            <button class="btn btn-secondary" id="profileSignOutBtn" type="button" style="width:auto;">Sign out</button>
           </div>
         </div>
 
@@ -1880,6 +1918,7 @@
     renderProfile();
     loadCrBoard();
     loadNotes();
+    restoreDraft();
   }
 
   function setupTabs(){
@@ -1922,6 +1961,7 @@
     if (cat) out = out.filter(a => (a.category||"") === cat);
     if (audience === "pinned") out = out.filter(a => a.pinned);
     if (audience === "urgent") out = out.filter(a => (a.priority||"").toLowerCase()==="urgent");
+    if (audience === "responses") out = out.filter(a => a.requires_response);
     if (sort === "priority"){
       const rank = { urgent:0, important:1, normal:2 };
       out.sort((a,b) => (rank[(a.priority||"normal").toLowerCase()]??2) - (rank[(b.priority||"normal").toLowerCase()]??2));
@@ -1979,6 +2019,7 @@
     $("statUrgent").textContent = cachedAnnouncements.filter(a => (a.priority||"").toLowerCase()==="urgent").length;
     $("statPinned").textContent = cachedAnnouncements.filter(a => a.pinned).length;
     $("statResponses").textContent = cachedAnnouncements.filter(a => a.requires_response).length;
+    $("statRowEmptyHint").style.display = cachedAnnouncements.length === 0 ? "block" : "none";
     const preview = cachedAnnouncements.slice(0,3);
     const wrap = $("todayFeedPreview");
     wrap.innerHTML = preview.length
@@ -1993,6 +2034,39 @@
       btn.textContent = "Copied!";
       setTimeout(()=> btn.textContent = old, 1500);
     });
+  });
+
+  $("shareRoomBtn").addEventListener("click", async ()=>{
+    const shareText = "Join our Campus One room with code " + currentRoom.code;
+    const shareUrl = window.location.origin + window.location.pathname;
+    if (navigator.share){
+      try {
+        await navigator.share({ title: "Campus One room", text: shareText, url: shareUrl });
+      } catch(err){
+        // user cancelled the native share sheet — no error needed
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(shareText + " — " + shareUrl);
+      const btn = $("shareRoomBtn");
+      const old = btn.textContent;
+      btn.textContent = "Link copied!";
+      setTimeout(()=> btn.textContent = old, 1500);
+    } catch(err){
+      showMsg($("appMsg"), "Couldn't copy the share link — copy the room code manually instead.", "error");
+    }
+  });
+
+  function goToFeedFilter(filterValue){
+    document.querySelector('.app-tab[data-tab="feed"]').click();
+    $("filterCategory").value = "";
+    $("filterAudience").value = filterValue === "all" ? "all" : filterValue;
+    $("filterSort").value = "newest";
+    renderFeed();
+  }
+  ["statCardTotal","statCardUrgent","statCardPinned","statCardResponses"].forEach(id=>{
+    $(id).addEventListener("click", ()=> goToFeedFilter($(id).dataset.filter));
   });
 
   $("freezeRoomToggle").addEventListener("change", async (e)=>{
@@ -2010,6 +2084,90 @@
   // ---- COMPOSE tab ----
   $("postBody").addEventListener("input", ()=>{
     $("postBodyCount").textContent = $("postBody").value.length + "/280";
+    scheduleDraftSave();
+  });
+  ["postCategory","postPriority","postDue","postPinned","postRequiresResponse"].forEach(id=>{
+    $(id).addEventListener("change", scheduleDraftSave);
+  });
+
+  const DRAFT_KEY = "campusOneComposeDraft";
+  let draftSaveTimer = null;
+  function draftStorageKey(){
+    return DRAFT_KEY + ":" + (currentRoom ? currentRoom.code : "unknown");
+  }
+  function scheduleDraftSave(){
+    clearTimeout(draftSaveTimer);
+    $("draftStatus").textContent = "Saving draft…";
+    draftSaveTimer = setTimeout(saveDraftNow, 500);
+  }
+  function saveDraftNow(){
+    const draft = {
+      body: $("postBody").value,
+      category: $("postCategory").value,
+      priority: $("postPriority").value,
+      due: $("postDue").value,
+      pinned: $("postPinned").checked,
+      requiresResponse: $("postRequiresResponse").checked,
+      savedAt: Date.now()
+    };
+    try {
+      if (!draft.body.trim()){
+        localStorage.removeItem(draftStorageKey());
+        $("draftStatus").textContent = "";
+        return;
+      }
+      localStorage.setItem(draftStorageKey(), JSON.stringify(draft));
+      $("draftStatus").textContent = "Draft saved";
+    } catch(err){
+      $("draftStatus").textContent = "";
+    }
+  }
+  function restoreDraft(){
+    try {
+      const raw = localStorage.getItem(draftStorageKey());
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      $("postBody").value = draft.body || "";
+      $("postBodyCount").textContent = $("postBody").value.length + "/280";
+      $("postCategory").value = draft.category || "Academic";
+      $("postPriority").value = draft.priority || "Normal";
+      $("postDue").value = draft.due || "";
+      $("postPinned").checked = !!draft.pinned;
+      $("postRequiresResponse").checked = !!draft.requiresResponse;
+      if (draft.body && draft.body.trim()){
+        $("draftStatus").textContent = "Draft restored";
+      }
+    } catch(err){
+      // ignore corrupt draft data
+    }
+  }
+  function clearDraft(){
+    try { localStorage.removeItem(draftStorageKey()); } catch(err){}
+    $("postBody").value = "";
+    $("postBodyCount").textContent = "0/280";
+    $("postCategory").value = "Academic";
+    $("postPriority").value = "Normal";
+    $("postDue").value = "";
+    $("postPinned").checked = false;
+    $("postRequiresResponse").checked = false;
+    $("draftStatus").textContent = "";
+    $("postPreviewPanel").style.display = "none";
+  }
+  $("postClearDraftBtn").addEventListener("click", clearDraft);
+  $("postPreviewBtn").addEventListener("click", ()=>{
+    const panel = $("postPreviewPanel");
+    const isOpen = panel.style.display !== "none";
+    if (isOpen){ panel.style.display = "none"; return; }
+    const fakeAnn = {
+      message: $("postBody").value.trim() || "Nothing written yet — this is a preview.",
+      category: $("postCategory").value,
+      priority: $("postPriority").value,
+      pinned: $("postPinned").checked,
+      requires_response: $("postRequiresResponse").checked,
+      created_at: new Date().toISOString()
+    };
+    panel.innerHTML = '<div class="field-hint" style="margin-bottom:8px;">Preview — this is how it will look in the Feed</div>' + renderAnn(fakeAnn);
+    panel.style.display = "block";
   });
 
   $("postSubmitBtn").addEventListener("click", async ()=>{
@@ -2034,11 +2192,7 @@
       annInsert[ROOM_LINK_COL] = currentRoom.code;
       const { error } = await sb.from(TABLES.announcements).insert(annInsert);
       if (error) throw error;
-      $("postBody").value = "";
-      $("postBodyCount").textContent = "0/280";
-      $("postDue").value = "";
-      $("postPinned").checked = false;
-      $("postRequiresResponse").checked = false;
+      clearDraft();
       await loadAnnouncements();
       showMsg(msgEl, "Announcement sent.", "success");
     } catch(err){
@@ -2049,6 +2203,7 @@
   });
 
   // ---- CR BOARD tab (schema unconfirmed — degrades gracefully) ----
+  let cachedCrPosts = [];
   async function loadCrBoard(){
     const wrap = $("crBoardListWrap");
     wrap.innerHTML = '<div class="ann-empty">Loading CR Board…</div>';
@@ -2063,18 +2218,38 @@
         wrap.innerHTML = '<div class="ann-empty">No CR Board posts yet.</div>';
         return;
       }
+      cachedCrPosts = data;
       wrap.innerHTML = '<div class="ann-list">' + data.map(p =>
         '<div class="ann-card">'
         + '<div class="ann-top"><div class="ann-badges">' + (p.pinned ? '<span class="ann-cat" style="background:var(--marigold);color:var(--ink);">Pinned</span>' : '') + '</div>'
         + '<span class="ann-date">' + (p.created_at ? new Date(p.created_at).toLocaleDateString(undefined,{month:"short",day:"numeric"}) : "") + '</span></div>'
         + (p.title ? '<div style="font-weight:600;margin-bottom:6px;">' + escapeHtml(p.title) + '</div>' : '')
         + '<div class="ann-body">' + escapeHtml(p.message || "") + '</div>'
+        + (currentRole === "cr" ? '<button class="btn btn-secondary cr-post-delete-btn" data-id="' + p.id + '" type="button" style="width:auto;margin-top:10px;padding:6px 14px;font-size:12.5px;">Delete</button>' : '')
         + '</div>'
       ).join("") + "</div>";
     } catch(err){
       wrap.innerHTML = '<div class="degrade-note">CR Board isn\'t connected yet — this needs the <code>' + CR_POSTS_TABLE + '</code> table\'s exact column names confirmed. (' + friendlyError(err) + ')</div>';
     }
   }
+
+  $("crBoardListWrap").addEventListener("click", async (e)=>{
+    const btn = e.target.closest(".cr-post-delete-btn");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!confirm("Delete this CR Board post? This can't be undone.")) return;
+    btn.disabled = true;
+    btn.textContent = "Deleting…";
+    try {
+      const { error } = await sb.from(CR_POSTS_TABLE).delete().eq("id", id);
+      if (error) throw error;
+      await loadCrBoard();
+    } catch(err){
+      showMsg($("appMsg"), "Couldn't delete — " + friendlyError(err), "error");
+      btn.disabled = false;
+      btn.textContent = "Delete";
+    }
+  });
 
   $("crPostSubmitBtn") && $("crPostSubmitBtn").addEventListener("click", async ()=>{
     const msgEl = $("appMsg");
@@ -2382,6 +2557,28 @@
   });
 
   // ---- NOTES tab (schema unconfirmed — degrades gracefully) ----
+  let cachedNotes = [];
+  function renderNotesList(list){
+    const wrap = $("notesListWrap");
+    if (!list || list.length === 0){
+      wrap.innerHTML = '<div class="ann-empty">' + (cachedNotes.length === 0 ? "No notes uploaded yet." : "No notes match your search.") + '</div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="ann-list">' + list.map(n =>
+      '<div class="ann-card"><div class="ann-top">'
+      + '<div style="font-weight:600;">' + escapeHtml(n.title || "Untitled") + '</div>'
+      + '<span class="ann-cat">₹' + escapeHtml(String(n.price ?? 20)) + '</span>'
+      + '</div><div class="ann-body">' + escapeHtml(n.subject || "") + '</div></div>'
+    ).join("") + "</div>";
+  }
+  $("notesSearchInput") && $("notesSearchInput").addEventListener("input", ()=>{
+    const q = $("notesSearchInput").value.trim().toLowerCase();
+    if (!q){ renderNotesList(cachedNotes); return; }
+    renderNotesList(cachedNotes.filter(n =>
+      (n.title||"").toLowerCase().includes(q) || (n.subject||"").toLowerCase().includes(q)
+    ));
+  });
+
   async function loadNotes(){
     const wrap = $("notesListWrap");
     wrap.innerHTML = '<div class="ann-empty">Loading notes…</div>';
@@ -2392,16 +2589,8 @@
         .eq(ROOM_LINK_COL, currentRoom.code)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      if (!data || data.length === 0){
-        wrap.innerHTML = '<div class="ann-empty">No notes uploaded yet.</div>';
-        return;
-      }
-      wrap.innerHTML = '<div class="ann-list">' + data.map(n =>
-        '<div class="ann-card"><div class="ann-top">'
-        + '<div style="font-weight:600;">' + escapeHtml(n.title || "Untitled") + '</div>'
-        + '<span class="ann-cat">₹' + escapeHtml(String(n.price ?? 20)) + '</span>'
-        + '</div><div class="ann-body">' + escapeHtml(n.subject || "") + '</div></div>'
-      ).join("") + "</div>";
+      cachedNotes = data || [];
+      renderNotesList(cachedNotes);
     } catch(err){
       wrap.innerHTML = '<div class="degrade-note">Notes marketplace isn\'t connected yet — this needs the <code>' + NOTES_TABLE + '</code> table\'s exact column names confirmed, plus Razorpay for real payments. (' + friendlyError(err) + ')</div>';
     }
@@ -2456,6 +2645,25 @@
   }
 
   // ---- PROFILE tab ----
+  const NOTIFY_PREF_KEY = "campusOneNotifyPrefs";
+  function loadNotifyPrefs(){
+    try {
+      const raw = localStorage.getItem(NOTIFY_PREF_KEY);
+      return raw ? JSON.parse(raw) : { urgent: true, pinned: true };
+    } catch(err){
+      return { urgent: true, pinned: true };
+    }
+  }
+  function saveNotifyPrefs(){
+    const prefs = { urgent: $("notifyUrgentToggle").checked, pinned: $("notifyPinnedToggle").checked };
+    try { localStorage.setItem(NOTIFY_PREF_KEY, JSON.stringify(prefs)); } catch(err){}
+    $("notifyPrefStatus").textContent = "Preferences saved";
+    setTimeout(()=>{ if ($("notifyPrefStatus").textContent === "Preferences saved") $("notifyPrefStatus").textContent = ""; }, 1500);
+  }
+  $("notifyUrgentToggle").addEventListener("change", saveNotifyPrefs);
+  $("notifyPinnedToggle").addEventListener("change", saveNotifyPrefs);
+  $("profileSignOutBtn").addEventListener("click", ()=> $("appLogoutBtn").click());
+
   function renderProfile(){
     const wrap = $("profileDetails");
     const email = (sb.auth.getSession && currentProfile) ? "" : "";
@@ -2465,6 +2673,9 @@
       + '<div class="pd-row"><span class="pd-label">College</span><span>' + escapeHtml(currentRoom.college || "—") + '</span></div>'
       + '<div class="pd-row"><span class="pd-label">Batch</span><span>' + escapeHtml(currentRoom.batch || "—") + '</span></div>'
       + '<div class="pd-row"><span class="pd-label">Room code</span><span>#' + escapeHtml(currentRoom.code) + '</span></div>';
+    const prefs = loadNotifyPrefs();
+    $("notifyUrgentToggle").checked = prefs.urgent !== false;
+    $("notifyPinnedToggle").checked = prefs.pinned !== false;
   }
 
   $("appLogoutBtn").addEventListener("click", async ()=>{
