@@ -24,6 +24,9 @@ exports.handler = async (event) => {
     if (!Number.isInteger(amount) || amount < 100) {
         return json(400, { error: "Invalid payment amount." });
     }
+    if (type === "personal_ai_summarizer" && amount !== 5000) {
+        return json(400, { error: "Premium access is ₹50." });
+    }
 
     try {
         const response = await fetch("https://api.razorpay.com/v1/orders", {

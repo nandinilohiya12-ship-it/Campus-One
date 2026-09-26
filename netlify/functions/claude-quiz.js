@@ -81,13 +81,11 @@ exports.handler = async (event) => {
     const body = parseBody(event);
     const fallback = fallbackQuiz(body.title, body.subject, body.content);
 
-    if (!apiKey) {
-        return json(200, fallback);
-    }
+    if (!apiKey) return json(503, { error: "Premium AI is not configured." });
 
-    const prompt = `Generate a quiz from the provided notes. Return ONLY valid JSON:
+    const prompt = `You are an exacting university examiner. Generate an exam-ready quiz from the provided notes. Return ONLY valid JSON:
 { "questions": [{ "id": "q1", "question": "...", "options": ["A","B","C","D"], "correct_index": 0, "explanation": "..." }] }
-Generate 8-10 questions covering the most important/high-weightage concepts only. Avoid trivial or trick questions.
+Generate exactly 10 four-option MCQs. Mix conceptual understanding, application, assertion-reasoning logic, numerical or derivation conditions where supported, and common-confusion contrasts. Each wrong option must be plausible but demonstrably wrong from the notes. Explanations must say why the answer is right and why the most tempting distractor is wrong. Do not ask vocabulary matching or quote completion. Never invent facts absent from the notes.
 
 Title: ${body.title || "Uploaded notes"}
 Subject: ${body.subject || "General"}
@@ -109,9 +107,7 @@ Notes text: ${body.content || "No extracted text was available for this file."}`
 
         const data = await response.json();
 
-        if (!response.ok) {
-            return json(200, fallback);
-        }
+        if (!response.ok) return json(502, { error: "Exam quiz generation failed." });
 
         const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") || "";
         const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
@@ -121,7 +117,7 @@ Notes text: ${body.content || "No extracted text was available for this file."}`
         const questions = Array.isArray(parsed.questions) ? parsed.questions.filter((q) => q && Array.isArray(q.options) && q.options.length === 4 && Number.isInteger(q.correct_index)) : [];
 
         if (!questions.length) {
-            return json(200, fallback);
+            return json(502, { error: "Exam quiz generation was incomplete." });
         }
 
         return json(200, {
@@ -133,7 +129,5 @@ Notes text: ${body.content || "No extracted text was available for this file."}`
                 explanation: String(q.explanation || "").trim()
             }))
         });
-    } catch {
-        return json(200, fallback);
-    }
+    } catch { return json(502, { error: "Exam quiz returned an invalid response." }); }
 };

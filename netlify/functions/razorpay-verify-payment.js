@@ -31,6 +31,18 @@ exports.handler = async (event) => {
 
     const purchase = body.purchase;
 
+    if (purchase?.purchaseType === "personal_ai_summarizer" && purchase?.buyerId && Number(purchase.grossAmount) === 50) {
+        try {
+            await supabaseInsert("premium_entitlements", {
+                user_id: purchase.buyerId,
+                feature: "personal_ai",
+                payment_id: body.razorpay_payment_id
+            });
+        } catch (error) {
+            return json(500, { verified: true, error: "Payment verified, but premium access could not be saved." });
+        }
+    }
+
     if (purchase?.noteId && purchase?.buyerId) {
         const grossAmount = Number(purchase.grossAmount || 0);
         const uploaderEarned = purchase.purchaseType === "file" ? Math.round(grossAmount * 0.7) : 0;

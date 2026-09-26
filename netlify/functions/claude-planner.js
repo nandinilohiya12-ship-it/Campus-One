@@ -62,16 +62,16 @@ exports.handler = async (event) => {
     const dayText = String(body.dayText || "").trim();
     const fallback = fallbackPlan(topics, dayText);
 
-    if (!apiKey) {
-        return json(200, fallback);
-    }
+    if (!apiKey) return json(503, { error: "Premium AI is not configured." });
 
     if (!dayText) {
         return json(200, { personalized_plan: [], note: "Tell us about your day first so the plan can fit around it." });
     }
 
-    const prompt = `You are a study planner. You have two inputs: (1) topics with priority levels from a note summary, and (2) a student's free-text description of their day and energy patterns. Build a realistic study schedule that fits INTO their actual day — don't ignore their stated commitments. Return ONLY valid JSON:
+    const prompt = `You are a disciplined academic coach. You have two inputs: (1) exam topics with priority levels and (2) a student's real timetable and energy patterns. Build a precise plan only inside stated free windows — never invent free time or use vague blocks such as "first free hour". Return ONLY valid JSON:
 { "personalized_plan": [{ "time_block": "...", "activity": "...", "reason": "..." }], "note": "one short practical line, no generic motivational fluff" }
+
+Return 3–5 concrete blocks. Each activity must name the topic, method (active recall, problem set, derivation practice, timed test, or error log), and measurable outcome. Put high-weightage work in the best stated energy window and light recall in low-energy windows. If timings are ambiguous, ask for clarification in the note rather than fabricating a schedule.
 
 Topics with priority: ${JSON.stringify(topics)}
 Student's day description: ${dayText}`;
@@ -92,9 +92,7 @@ Student's day description: ${dayText}`;
 
         const data = await response.json();
 
-        if (!response.ok) {
-            return json(200, fallback);
-        }
+        if (!response.ok) return json(502, { error: "Premium planner generation failed." });
 
         const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") || "";
         const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
@@ -107,7 +105,5 @@ Student's day description: ${dayText}`;
             personalized_plan: plan.length ? plan : fallback.personalized_plan,
             note: String(parsed.note || fallback.note).trim()
         });
-    } catch {
-        return json(200, fallback);
-    }
+    } catch { return json(502, { error: "Premium planner returned an invalid response." }); }
 };

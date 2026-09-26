@@ -16,7 +16,7 @@ const TOPIC_PRIORITY_COLOR_CLASS = { "high weightage": "prio-red", "needs practi
 const RAZORPAY_ORDER_ENDPOINT = "/api/razorpay/create-order";
 const RAZORPAY_VERIFY_ENDPOINT = "/api/razorpay/verify-payment";
 const RAZORPAY_PLACEHOLDER_KEY = "rzp_test_replace_with_your_key";
-const AI_FEATURE_PRICE = 20;
+const AI_FEATURE_PRICE = 50;
 const MIN_NOTE_PRICE = 10;
 const HARD_MAX_NOTE_PRICE = 199;
 const NOTE_PRICE = AI_FEATURE_PRICE;
@@ -498,7 +498,21 @@ async function syncBackendData() {
         return;
     }
 
-    await Promise.all([syncNotesFromBackend(), syncCrPostsFromBackend()]);
+    await Promise.all([syncNotesFromBackend(), syncCrPostsFromBackend(), syncPremiumEntitlement()]);
+}
+
+async function syncPremiumEntitlement() {
+    if (!supabaseClient || !state.account?.id) return;
+    const { data, error } = await supabaseClient
+        .from("premium_entitlements")
+        .select("payment_id, paid_at")
+        .eq("user_id", state.account.id)
+        .eq("feature", "personal_ai")
+        .limit(1);
+    if (!error && data?.length) {
+        state.aiToolAccess[getPremiumKey()] = { paid: true, amount: AI_FEATURE_PRICE, paymentId: data[0].payment_id, paidAt: new Date(data[0].paid_at).getTime() };
+        saveAiToolAccess();
+    }
 }
 
 async function syncNotesFromBackend() {
@@ -2579,7 +2593,11 @@ function clampPrice(price, maxPrice) {
 }
 
 function hasAiToolAccess() {
-    return Boolean(state.aiToolAccess[state.activeStudent]);
+    return Boolean(state.aiToolAccess[getPremiumKey()]?.paid);
+}
+
+function getPremiumKey() {
+    return state.activeProfile?.id || state.account?.id || state.activeStudent || "anonymous";
 }
 
 function renderAiTool() {
@@ -2588,7 +2606,7 @@ function renderAiTool() {
     elements.aiToolForm.classList.toggle("locked", !unlocked);
     elements.aiToolStatus.textContent = unlocked
         ? "AI summarizer unlocked for this student. Upload or paste notes below."
-        : "Unlock the AI summarizer for ₹20 to use this tool.";
+        : `Unlock the AI summarizer for ₹${AI_FEATURE_PRICE} to use this tool.`;
 }
 
 async function startAiToolPayment() {
@@ -2615,10 +2633,7 @@ async function startAiToolPayment() {
         return;
     }
 
-    const approved = window.confirm(`Demo payment mode: unlock AI Notes Summarizer for ₹${AI_FEATURE_PRICE}?`);
-    if (approved) {
-        completeAiToolPayment(`demo_${createId()}`);
-    }
+    showToast("Payments are unavailable right now. Premium stays locked until Razorpay verifies payment.");
 }
 
 async function createAiToolOrder() {
@@ -2640,7 +2655,7 @@ async function createAiToolOrder() {
 }
 
 function completeAiToolPayment(paymentId) {
-    state.aiToolAccess[state.activeStudent] = {
+    state.aiToolAccess[getPremiumKey()] = {
         paid: true,
         amount: AI_FEATURE_PRICE,
         paymentId,
@@ -2655,6 +2670,7 @@ function completeAiToolPayment(paymentId) {
 async function verifyAiToolPayment(response) {
     const verified = await verifyRazorpayPayment(response, {
         purchaseType: "personal_ai_summarizer",
+        buyerId: state.account?.id || state.activeProfile?.id,
         grossAmount: AI_FEATURE_PRICE
     });
 
@@ -3009,9 +3025,11 @@ async function startPersonalQuiz(context) {
             throw new Error("Quiz endpoint unavailable");
         }
         const data = await response.json();
-        quiz = Array.isArray(data.questions) && data.questions.length ? data.questions : createDemoQuiz(context.content, context.title, context.subject).questions;
+        if (!Array.isArray(data.questions) || data.questions.length < 8) throw new Error("Incomplete exam quiz");
+        quiz = data.questions;
     } catch {
-        quiz = createDemoQuiz(context.content, context.title, context.subject).questions;
+        zone.innerHTML = '<div class="ann-empty">The exam quiz service is unavailable right now. No placeholder questions were generated.</div>';
+        return;
     }
 
     const answers = new Array(quiz.length).fill(null);
@@ -3162,9 +3180,11 @@ async function generatePersonalizedPlan(topics, dayText) {
             throw new Error("Planner endpoint unavailable");
         }
         const data = await response.json();
-        plan = Array.isArray(data.personalized_plan) && data.personalized_plan.length ? data : createDemoPlan(topics, dayText);
+        if (!Array.isArray(data.personalized_plan) || !data.personalized_plan.length) throw new Error("Incomplete study plan");
+        plan = data;
     } catch {
-        plan = createDemoPlan(topics, dayText);
+        zone.innerHTML = '<div class="ann-empty">The planner is unavailable right now. No generic schedule was created.</div>';
+        return;
     }
 
     zone.innerHTML = `
@@ -3218,11 +3238,11 @@ async function generateNoteAI(input, statusElement = elements.noteAiStatus) {
         }
 
         const data = await response.json();
-        statusElement.textContent = "Claude AI output generated and stored.";
+        statusElement.textContent = "Premium AI output generated.";
         return normalizeNoteAI(data, input.title, input.subject, input.fileName);
-    } catch {
-        statusElement.textContent = "AI output ready.";
-        return createDemoNoteAI(input);
+    } catch (error) {
+        statusElement.textContent = "Premium AI is temporarily unavailable. No placeholder study pack was created.";
+        throw error;
     }
 }
 
@@ -3447,10 +3467,7 @@ async function startNoteUnlockLegacy(noteId) {
         return;
     }
 
-    const approved = window.confirm("Demo payment mode: unlock this note for ₹20?");
-    if (approved) {
-        completeNotePurchase(note, `demo_${createId()}`);
-    }
+    showToast("Payments are unavailable right now. This item stays locked until Razorpay verifies payment.");
 }
 
 async function createRazorpayOrder(note) {
@@ -3800,10 +3817,7 @@ async function startNotePurchase(noteId, type) {
         return;
     }
 
-    const approved = window.confirm(`Demo payment mode: unlock ${label} for ₹${amount}?`);
-    if (approved) {
-        completeNotePurchaseV2(note, type, `demo_${createId()}`);
-    }
+    showToast("Payments are unavailable right now. This item stays locked until Razorpay verifies payment.");
 }
 
 async function createRazorpayOrderV2(note, amount, type) {

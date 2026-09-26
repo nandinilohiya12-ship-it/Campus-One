@@ -113,20 +113,18 @@ exports.handler = async (event) => {
     const body = parseBody(event);
     const fallback = fallbackOutput(body.title, body.subject, body.content, body.fileName);
 
-    if (!apiKey) {
-        return json(200, fallback);
-    }
+    if (!apiKey) return json(503, { error: "Premium AI is not configured." });
 
     const hasRealContent = Boolean((body.content || "").trim().length > 40);
 
-    const systemPrompt = `You are an academic note summarizer for Indian engineering/college students. Given raw notes, return ONLY valid JSON, no markdown, no preamble, in this exact shape:
+    const systemPrompt = `You are a rigorous university exam-preparation analyst. Given raw notes, return ONLY valid JSON, no markdown, no preamble, in this exact shape:
 {
  "summary_points": [{ "point": "...", "importance": "high|medium|low" }], // exactly 8 items
  "study_plan": [{ "day": 1, "focus": "...", "tasks": ["...","..."], "est_minutes": 45 }],
  "key_dates": [{ "date": "...", "description": "..." }],
  "topics": [{ "name": "...", "priority": "high weightage|revision|needs practice" }]
 }
-Be specific and concrete — no generic filler. Base every field strictly on the provided notes.`;
+Create an exam-ready pack: identify definitions, mechanisms, derivations, formula conditions, contrasts, exceptions and common mistakes present in the notes. Every summary point must be a self-contained examinable claim, not a vague heading. Make a 7-day plan with 3 concrete tasks per day; sequence concepts before applications, include active recall and timed practice, and assign 45–90 realistic minutes. Never invent facts absent from the notes.`;
 
     const userPrompt = `${hasRealContent ? "" : "The notes text below is thin or missing (likely a non-text file format). Build the best possible pack from the title, subject, and file name, and keep topics honestly generic in that case rather than inventing fake specifics.\n\n"}Title: ${body.title || "Uploaded notes"}
 Subject: ${body.subject || "General"}
@@ -150,9 +148,7 @@ Notes text: ${body.content || "No extracted text was available for this file."}`
 
         const data = await response.json();
 
-        if (!response.ok) {
-            return json(200, fallback);
-        }
+        if (!response.ok) return json(502, { error: "Premium AI generation failed." });
 
         const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") || "";
         const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
@@ -187,7 +183,5 @@ Notes text: ${body.content || "No extracted text was available for this file."}`
             : fallback.topics;
 
         return json(200, { summary_points, study_plan, key_dates, topics });
-    } catch {
-        return json(200, fallback);
-    }
+    } catch { return json(502, { error: "Premium AI returned an invalid response." }); }
 };

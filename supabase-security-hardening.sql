@@ -41,6 +41,9 @@ begin
     elsif v_room.cr_pin_hash is null or crypt(p_cr_pin, v_room.cr_pin_hash) <> v_room.cr_pin_hash then
       raise exception 'Invalid CR PIN';
     end if;
+    if (select count(*) from public.profiles where room_code = v_code and role = 'cr' and id <> auth.uid()) >= 2 then
+      raise exception 'This room already has its maximum of two CRs';
+    end if;
   else
     raise exception 'Invalid role';
   end if;
@@ -98,3 +101,17 @@ on public.profiles for select to authenticated using (
 
 drop policy if exists "Users can update their own profile" on public.profiles;
 drop policy if exists "Users can insert their own profile" on public.profiles;
+
+create table if not exists public.premium_entitlements (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  feature text not null check (feature in ('personal_ai')),
+  payment_id text not null unique,
+  paid_at timestamptz not null default now()
+);
+
+alter table public.premium_entitlements enable row level security;
+drop policy if exists "Users can view their own premium entitlements" on public.premium_entitlements;
+create policy "Users can view their own premium entitlements"
+on public.premium_entitlements for select to authenticated
+using (user_id = (select auth.uid()));
