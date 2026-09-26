@@ -81,6 +81,7 @@ revoke all on function public.is_room_member(text) from public;
 grant execute on function public.is_room_member(text) to authenticated;
 
 drop policy if exists "Rooms are visible to authenticated users" on public.rooms;
+drop policy if exists "Members can view their room" on public.rooms;
 create policy "Members can view their room"
 on public.rooms for select to authenticated using (
   created_by = (select auth.uid())
