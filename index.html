@@ -425,6 +425,46 @@
     background:var(--teal); flex-shrink:0;
   }
 
+  .quick-actions-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0 24px;
+  }
+  @media (max-width:700px){ .quick-actions-grid{grid-template-columns:repeat(2,1fr);} }
+  .quick-action-btn{
+    display:flex; flex-direction:column; align-items:flex-start; gap:10px;
+    border:1px solid var(--line); border-radius:12px; padding:16px;
+    background:var(--paper); cursor:pointer; text-align:left; font-family:inherit;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .quick-action-btn:hover, .quick-action-btn:focus-visible{
+    transform:translateY(-3px); box-shadow:0 14px 28px -14px rgba(20,23,46,0.25); outline:none;
+  }
+  .quick-action-btn .qa-icon{
+    width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+  }
+  .quick-action-btn:nth-child(1) .qa-icon{background:rgba(242,169,59,0.16); color:var(--marigold-deep);}
+  .quick-action-btn:nth-child(2) .qa-icon{background:rgba(213,72,58,0.12); color:var(--coral);}
+  .quick-action-btn:nth-child(3) .qa-icon{background:rgba(107,63,158,0.12); color:var(--purple);}
+  .quick-action-btn:nth-child(4) .qa-icon{background:rgba(31,111,100,0.12); color:var(--teal);}
+  .quick-action-btn strong{font-size:14px;}
+  .quick-action-btn span.qa-sub{font-size:12px; color:var(--ink-soft); font-weight:400;}
+
+  .today-two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:24px; align-items:start;}
+  @media (max-width:860px){ .today-two-col{grid-template-columns:1fr;} }
+  .room-info-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px;}
+  .room-info-row:last-child{border-bottom:none;}
+  .room-info-row span:first-child{color:var(--ink-soft);}
+  .room-info-row span:last-child{font-weight:600;}
+
+  .premium-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+    background:linear-gradient(120deg, var(--ink) 0%, #232742 100%);
+    color:#fff; border-radius:14px; padding:22px 26px; margin-bottom:24px;
+  }
+  .premium-banner h3{color:#fff; font-size:18px;}
+  .premium-banner .field-hint{color:rgba(255,255,255,0.68);}
+  .premium-banner .premium-chip{background:rgba(242,169,59,0.18); color:var(--marigold);}
+
   /* ---------- FINAL CTA ---------- */
   .final-cta{
     background:var(--ink); color:var(--paper);
@@ -1269,22 +1309,53 @@
           </div>
           <p class="field-hint" id="statRowEmptyHint" style="display:none; margin-top:-10px;">No activity yet — post your first announcement from Compose to see it here.</p>
 
+          <div class="quick-actions-grid" id="quickActionsGrid"></div>
+
+          <div class="premium-banner" id="premiumBanner" style="display:none;">
+            <div>
+              <span class="premium-chip studio" style="margin-bottom:8px;">✨ PREMIUM</span>
+              <h3 style="margin:6px 0 4px;">Unlock AI Studio</h3>
+              <p class="field-hint" style="margin:0;">Notes summarizer, quiz generator &amp; day planner — one-time unlock.</p>
+            </div>
+            <button class="btn btn-primary" id="premiumBannerBtn" type="button" style="width:auto;">Buy Premium — ₹50</button>
+          </div>
+
           <div class="panel-block" id="manageRoomBlock" style="display:none;">
             <h3>Manage room</h3>
-            <div class="manage-row">
+            <div class="today-two-col">
               <div>
-                <div class="field-hint" style="margin-bottom:4px;">Room code — share this with your batch</div>
-                <div class="room-code-display" style="margin:0; text-align:left; padding:14px 18px;">
-                  <span class="rc-code" id="manageRoomCode" style="font-size:19px;">—</span>
+                <div class="manage-row">
+                  <div>
+                    <div class="field-hint" style="margin-bottom:4px;">Room code — share this with your batch</div>
+                    <div class="room-code-display" style="margin:0; text-align:left; padding:14px 18px;">
+                      <span class="rc-code" id="manageRoomCode" style="font-size:19px;">—</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary" id="copyRoomCodeBtn" style="width:auto;">Copy code</button>
+                  <button class="btn btn-secondary" id="shareRoomBtn" style="width:auto;">Share room</button>
                 </div>
+                <label class="toggle-row">
+                  <input type="checkbox" id="freezeRoomToggle">
+                  <span>Freeze room — stop new students from joining with the code</span>
+                </label>
               </div>
-              <button class="btn btn-secondary" id="copyRoomCodeBtn" style="width:auto;">Copy code</button>
-              <button class="btn btn-secondary" id="shareRoomBtn" style="width:auto;">Share room</button>
+              <div>
+                <div class="room-info-row"><span>Students joined</span><span id="roomMemberCount">—</span></div>
+                <div class="room-info-row"><span>College</span><span id="roomInfoCollege">—</span></div>
+                <div class="room-info-row"><span>Batch</span><span id="roomInfoBatch">—</span></div>
+                <div class="room-info-row"><span>Room status</span><span id="roomInfoStatus">Open</span></div>
+              </div>
             </div>
-            <label class="toggle-row">
-              <input type="checkbox" id="freezeRoomToggle">
-              <span>Freeze room — stop new students from joining with the code</span>
-            </label>
+          </div>
+
+          <div class="panel-block" id="pinnedBlock" style="display:none;">
+            <h3>Pinned</h3>
+            <div id="pinnedPreview"></div>
+          </div>
+
+          <div class="panel-block" id="upcomingBlock" style="display:none;">
+            <h3>Upcoming</h3>
+            <div id="upcomingPreview"></div>
           </div>
 
           <div class="panel-block">
@@ -1420,15 +1491,15 @@
             <div class="ai-studio-hero-top">
               <span class="premium-chip studio">✨ PREMIUM</span>
               <h3>AI Studio — your study era starts here</h3>
-              <p>heyyy 👋 one unlock, two tools: a notes summarizer + quiz that actually gets it, and a day planner that turns "i have no time" into an actual schedule. ₹20, one time, no cap.</p>
+              <p>heyyy 👋 one unlock, two tools: a notes summarizer + quiz that actually gets it, and a day planner that turns "i have no time" into an actual schedule. ₹50, one time, no cap.</p>
             </div>
             <div class="trust-row studio-trust">
               <div class="trust-item"><span class="ic"></span>Runs right in your browser — nothing leaves this tab</div>
               <div class="trust-item"><span class="ic"></span>Secure checkout, every time</div>
-              <div class="trust-item"><span class="ic"></span>Same ₹20 unlock, works for every tool below</div>
+              <div class="trust-item"><span class="ic"></span>Same ₹50 unlock, works for every tool below</div>
             </div>
             <div id="studioUnlockRow">
-              <button class="btn btn-primary" id="aiUnlockBtn" style="width:auto;">Unlock AI Studio · ₹20</button>
+              <button class="btn btn-primary" id="aiUnlockBtn" style="width:auto;">Buy Premium — ₹50</button>
             </div>
             <div id="studioUnlockedRow" style="display:none;">
               <span class="premium-chip unlocked">✅ UNLOCKED — let's gooo</span>
@@ -2025,6 +2096,67 @@
     wrap.innerHTML = preview.length
       ? '<div class="ann-list">' + preview.map(renderAnn).join("") + "</div>"
       : '<div class="ann-empty">Nothing posted yet.</div>';
+
+    renderQuickActions();
+    renderRoomInfoCard();
+    $("premiumBanner").style.display = aiUnlocked ? "none" : "flex";
+
+    const pinnedItems = cachedAnnouncements.filter(a => a.pinned).slice(0,3);
+    $("pinnedBlock").style.display = pinnedItems.length ? "block" : "none";
+    if (pinnedItems.length){
+      $("pinnedPreview").innerHTML = '<div class="ann-list">' + pinnedItems.map(renderAnn).join("") + "</div>";
+    }
+
+    const now = new Date();
+    const upcomingItems = cachedAnnouncements
+      .filter(a => a.due_at && new Date(a.due_at) >= now)
+      .sort((a,b) => new Date(a.due_at) - new Date(b.due_at))
+      .slice(0,3);
+    $("upcomingBlock").style.display = upcomingItems.length ? "block" : "none";
+    if (upcomingItems.length){
+      $("upcomingPreview").innerHTML = '<div class="ann-list">' + upcomingItems.map(renderAnn).join("") + "</div>";
+    }
+  }
+
+  function renderQuickActions(){
+    const actions = currentRole === "cr" ? [
+      { icon:"📢", title:"New announcement", sub:"Post to your batch", onClick:()=>{ document.querySelector('.app-tab[data-tab="compose"]').click(); $("postBody").focus(); } },
+      { icon:"📋", title:"Post to CR Board", sub:"CR-only notes", onClick:()=>{ document.querySelector('.app-tab[data-tab="crboard"]').click(); } },
+      { icon:"✨", title:"AI Studio", sub:"Summarize, quiz, plan", onClick:()=>{ document.querySelector('.app-tab[data-tab="aistudio"]').click(); } },
+      { icon:"📚", title:"Browse notes", sub:"Marketplace", onClick:()=>{ document.querySelector('.app-tab[data-tab="notes"]').click(); } }
+    ] : [
+      { icon:"🗞️", title:"Open Feed", sub:"See everything", onClick:()=>{ document.querySelector('.app-tab[data-tab="feed"]').click(); } },
+      { icon:"📋", title:"CR Board", sub:"CR notes & plans", onClick:()=>{ document.querySelector('.app-tab[data-tab="crboard"]').click(); } },
+      { icon:"✨", title:"AI Studio", sub:"Summarize, quiz, plan", onClick:()=>{ document.querySelector('.app-tab[data-tab="aistudio"]').click(); } },
+      { icon:"📚", title:"Browse notes", sub:"Marketplace", onClick:()=>{ document.querySelector('.app-tab[data-tab="notes"]').click(); } }
+    ];
+    const grid = $("quickActionsGrid");
+    grid.innerHTML = "";
+    actions.forEach(a => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "quick-action-btn";
+      btn.innerHTML = '<span class="qa-icon">' + a.icon + '</span><strong>' + a.title + '</strong><span class="qa-sub">' + a.sub + '</span>';
+      btn.addEventListener("click", a.onClick);
+      grid.appendChild(btn);
+    });
+  }
+
+  async function renderRoomInfoCard(){
+    if (currentRole !== "cr") return;
+    $("roomInfoCollege").textContent = currentRoom.college || "—";
+    $("roomInfoBatch").textContent = currentRoom.batch || "—";
+    $("roomInfoStatus").textContent = currentRoom.cr_locked ? "Frozen" : "Open";
+    try {
+      const { count, error } = await sb
+        .from(TABLES.profiles)
+        .select("id", { count: "exact", head: true })
+        .eq(ROOM_LINK_COL, currentRoom.code);
+      if (error) throw error;
+      $("roomMemberCount").textContent = count ?? "—";
+    } catch(err){
+      $("roomMemberCount").textContent = "—";
+    }
   }
 
   $("copyRoomCodeBtn").addEventListener("click", ()=>{
@@ -2075,6 +2207,7 @@
       const { error } = await sb.from(TABLES.rooms).update({ cr_locked: checked }).eq("code", currentRoom.code);
       if (error) throw error;
       currentRoom.cr_locked = checked;
+      $("roomInfoStatus").textContent = checked ? "Frozen" : "Open";
     } catch(err){
       e.target.checked = !checked;
       showMsg($("appMsg"), "Couldn't update room lock — " + friendlyError(err), "error");
@@ -2283,14 +2416,19 @@
   $("aiUnlockBtn").addEventListener("click", async ()=>{
     const btn = $("aiUnlockBtn");
     setLoading(btn, true, "Processing payment…");
-    // Demo unlock — simulates the ₹20 payment step. Wire this to Razorpay's
+    // Demo unlock — simulates the ₹50 payment step. Wire this to Razorpay's
     // checkout + verification (per your PRD) once you have live Razorpay keys.
     await new Promise(res => setTimeout(res, 700));
     aiUnlocked = true;
     $("studioUnlockRow").style.display = "none";
     $("studioUnlockedRow").style.display = "block";
     $("studioToolArea").style.display = "block";
-    setLoading(btn, false, "Unlock AI Studio · ₹20");
+    $("premiumBanner").style.display = "none";
+    setLoading(btn, false, "Buy Premium — ₹50");
+  });
+
+  $("premiumBannerBtn").addEventListener("click", ()=>{
+    document.querySelector('.app-tab[data-tab="aistudio"]').click();
   });
 
   // sub-tab switching within AI Studio
