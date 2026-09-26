@@ -261,7 +261,9 @@ const state = {
     categoryFilter: "All",
     search: "",
     sortMode: "newest",
-    notesSearch: ""
+    notesSearch: "",
+    notesSubjectFilter: "all",
+    notesSort: "newest"
 };
 
 const elements = {
@@ -270,6 +272,14 @@ const elements = {
     authLoginTab: document.getElementById("authLoginTab"),
     authSignupTab: document.getElementById("authSignupTab"),
     authSubmitBtn: document.getElementById("authSubmitBtn"),
+    passwordToggle: document.getElementById("passwordToggle"),
+    authStatus: document.getElementById("authStatus"),
+    forgotPasswordLink: document.getElementById("forgotPasswordLink"),
+    forgotPasswordPanel: document.getElementById("forgotPasswordPanel"),
+    forgotPasswordEmail: document.getElementById("forgotPasswordEmail"),
+    forgotPasswordSubmitBtn: document.getElementById("forgotPasswordSubmitBtn"),
+    forgotPasswordStatus: document.getElementById("forgotPasswordStatus"),
+    googleSignInBtn: document.getElementById("googleSignInBtn"),
     backToAuthBtn: document.getElementById("backToAuthBtn"),
     loginEmail: document.getElementById("loginEmail"),
     loginPassword: document.getElementById("loginPassword"),
@@ -284,22 +294,10 @@ const elements = {
     loginStudent: document.getElementById("loginStudent"),
     loginCrBtn: document.getElementById("loginCrBtn"),
     loginStudentBtn: document.getElementById("loginStudentBtn"),
-    forgotPasswordLink: document.getElementById("forgotPasswordLink"),
-    marketingLanding: document.getElementById("marketingLanding"),
-    landingSignInBtn: document.getElementById("landingSignInBtn"),
-    landingCreateRoomBtn: document.getElementById("landingCreateRoomBtn"),
-    landingJoinRoomBtn: document.getElementById("landingJoinRoomBtn"),
-    landingCreateRoomBtn2: document.getElementById("landingCreateRoomBtn2"),
-    landingJoinRoomBtn2: document.getElementById("landingJoinRoomBtn2"),
-    forgotPasswordPanel: document.getElementById("forgotPasswordPanel"),
-    forgotPasswordBackBtn: document.getElementById("forgotPasswordBackBtn"),
-    forgotPasswordEmail: document.getElementById("forgotPasswordEmail"),
-    forgotPasswordSubmitBtn: document.getElementById("forgotPasswordSubmitBtn"),
-    forgotPasswordStatus: document.getElementById("forgotPasswordStatus"),
-    googleSignInBtn: document.getElementById("googleSignInBtn"),
     roleToggle: document.getElementById("roleToggle"),
     roleLabel: document.getElementById("roleLabel"),
     notifyBtn: document.getElementById("notifyBtn"),
+    notificationOptIn: document.getElementById("notificationOptIn"),
     notificationBubble: document.getElementById("notificationBubble"),
     studentSection: document.getElementById("studentSection"),
     greetingTitle: document.getElementById("greetingTitle"),
@@ -349,6 +347,8 @@ const elements = {
     helpChatForm: document.getElementById("helpChatForm"),
     helpChatInput: document.getElementById("helpChatInput"),
     notesSearch: document.getElementById("notesSearch"),
+    notesSubjectFilter: document.getElementById("notesSubjectFilter"),
+    notesSort: document.getElementById("notesSort"),
     notesList: document.getElementById("notesList"),
     totalEarnings: document.getElementById("totalEarnings"),
     earningsList: document.getElementById("earningsList"),
@@ -427,9 +427,6 @@ async function boot() {
     renderAuthGate();
     hydrateRoomFromUrl();
     await restoreSupabaseSession();
-    if (state.account) {
-        elements.body.classList.add("show-auth");
-    }
     await loadProfilesFromBackend();
     await syncBackendData();
     renderProfileSelectors();
@@ -706,6 +703,13 @@ function bindEvents() {
 
     state.eventsBound = true;
     document.addEventListener("click", handleGlobalActionClick);
+    elements.passwordToggle?.addEventListener("click", togglePasswordVisibility);
+    elements.forgotPasswordLink?.addEventListener("click", () => {
+        elements.forgotPasswordPanel?.classList.toggle("hidden");
+        elements.forgotPasswordEmail?.focus();
+    });
+    elements.forgotPasswordSubmitBtn?.addEventListener("click", submitForgotPassword);
+    elements.googleSignInBtn?.addEventListener("click", submitGoogleSignIn);
     [elements.loginEmail, elements.loginPassword, elements.loginName].forEach((field) => {
         field.addEventListener("keydown", (event) => {
             if (event.key === "Enter" && !state.account) {
@@ -731,33 +735,16 @@ function bindEvents() {
         button.addEventListener("click", () => scrollToSection(button.dataset.scrollTarget));
     });
 
-    elements.forgotPasswordLink.addEventListener("click", openForgotPasswordPanel);
-    elements.forgotPasswordBackBtn.addEventListener("click", closeForgotPasswordPanel);
-    elements.forgotPasswordSubmitBtn.addEventListener("click", submitForgotPassword);
-    elements.forgotPasswordEmail.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            submitForgotPassword();
-        }
-    });
-    elements.googleSignInBtn.addEventListener("click", submitGoogleSignIn);
-
-    [elements.landingSignInBtn, elements.landingCreateRoomBtn, elements.landingJoinRoomBtn,
-     elements.landingCreateRoomBtn2, elements.landingJoinRoomBtn2].forEach((btn) => {
-        if (btn) {
-            btn.addEventListener("click", revealAuthGate);
-        }
-    });
-
     elements.roleToggle.addEventListener("click", openLoginGate);
     elements.notifyBtn.addEventListener("click", () => {
         state.feedFilter = "unread";
         scrollToSection("feed");
         render();
     });
-    if (elements.helpChatLauncher) {
-        elements.helpChatLauncher.addEventListener("click", toggleHelpChat);
-    }
+    elements.notificationOptIn?.addEventListener("click", requestNotificationPermission);
+    // The assistant is optional on stripped-down or embedded deployments. Keep
+    // the core workspace usable if that enhancement has not been rendered.
+    elements.helpChatLauncher?.addEventListener("click", toggleHelpChat);
     if (elements.helpChatClose) {
         elements.helpChatClose.addEventListener("click", () => setHelpChatOpen(false));
     }
@@ -776,6 +763,14 @@ function bindEvents() {
     elements.notePrice.addEventListener("input", enforceSellerPriceLimit);
     elements.notesSearch.addEventListener("input", (event) => {
         state.notesSearch = event.target.value.trim().toLowerCase();
+        renderNotesMarketplace();
+    });
+    elements.notesSubjectFilter?.addEventListener("change", (event) => {
+        state.notesSubjectFilter = event.target.value;
+        renderNotesMarketplace();
+    });
+    elements.notesSort?.addEventListener("change", (event) => {
+        state.notesSort = event.target.value;
         renderNotesMarketplace();
     });
     elements.crPostForm.addEventListener("submit", createCrBoardPost);
@@ -827,6 +822,25 @@ function bindEvents() {
     window.addEventListener("scroll", updateScrollTopButton, { passive: true });
 }
 
+async function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+        showToast("This browser does not support notifications.");
+        return;
+    }
+    if (Notification.permission === "granted") {
+        showToast("Urgent announcement alerts are already enabled.");
+        return;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+        elements.notificationOptIn.textContent = "Alerts enabled";
+        elements.notificationOptIn.disabled = true;
+        showToast("Alerts enabled. Urgent updates can now notify this device.");
+    } else {
+        showToast("Alerts were not enabled. You can change this later in browser settings.");
+    }
+}
+
 function handleGlobalActionClick(event) {
     const target = event.target.closest("button");
 
@@ -868,6 +882,36 @@ function handleGlobalActionClick(event) {
         event.preventDefault();
         completeLogin("student");
     }
+}
+
+function togglePasswordVisibility() {
+    const shouldShow = elements.loginPassword.type === "password";
+    elements.loginPassword.type = shouldShow ? "text" : "password";
+    elements.passwordToggle.setAttribute("aria-pressed", String(shouldShow));
+    elements.passwordToggle.setAttribute("aria-label", shouldShow ? "Hide password" : "Show password");
+    const icon = elements.passwordToggle.querySelector("i, svg");
+    if (icon) {
+        icon.dataset.lucide = shouldShow ? "eye-off" : "eye";
+    }
+    refreshIcons();
+}
+
+async function submitForgotPassword() {
+    const email = normalizeEmail(elements.forgotPasswordEmail?.value);
+    if (!email || !email.includes("@")) { showToast("Enter a valid email address."); return; }
+    if (!supabaseClient) { showToast("Password reset requires a configured Supabase connection."); return; }
+    elements.forgotPasswordSubmitBtn.disabled = true;
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+    elements.forgotPasswordSubmitBtn.disabled = false;
+    elements.forgotPasswordStatus.textContent = error
+        ? "We could not send a reset link. Please try again."
+        : "If an account exists, a reset link is on its way.";
+}
+
+async function submitGoogleSignIn() {
+    if (!supabaseClient) { showToast("Google sign-in requires Supabase configuration."); return; }
+    const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
+    if (error) showToast("Google sign-in could not be started.");
 }
 
 function loadAnnouncements() {
@@ -1188,6 +1232,11 @@ function renderAuthGate() {
     if (submitIcon) {
         submitIcon.dataset.lucide = isSignup ? "user-plus" : "log-in";
     }
+    if (elements.authStatus) {
+        elements.authStatus.textContent = isSignup
+            ? "Create your account, then join or launch a batch room."
+            : "Your room details stay private to your campus.";
+    }
 
     elements.roomLoginFields.classList.toggle("hidden", false);
     elements.activeAccountChip.textContent = hasAccount
@@ -1243,7 +1292,7 @@ async function submitAuth() {
             return;
         }
 
-        showToast("Creating your account...");
+        setAuthPending(true, "Creating your secure account...");
         const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
@@ -1251,11 +1300,13 @@ async function submitAuth() {
         });
 
         if (error) {
+            setAuthPending(false);
             showToast(error.message || "Could not create account.");
             return;
         }
 
         if (!data.session) {
+            setAuthPending(false);
             showToast("Account created. Check your email to confirm, then log in.");
             state.authMode = "login";
             renderAuthGate();
@@ -1264,15 +1315,17 @@ async function submitAuth() {
 
         state.account = { id: data.user.id, name, email, createdAt: Date.now() };
         state.loginStep = "room";
+        setAuthPending(false);
         renderAuthGate();
         showToast("Account created. Now choose room access.");
         return;
     }
 
-    showToast("Logging in...");
+    setAuthPending(true, "Signing you in securely...");
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
     if (error) {
+        setAuthPending(false);
         showToast(error.message || "No account found with this email and password.");
         return;
     }
@@ -1280,8 +1333,23 @@ async function submitAuth() {
     const fullName = data.user.user_metadata?.full_name || elements.loginName.value.trim() || email;
     state.account = { id: data.user.id, name: fullName, email, createdAt: Date.now() };
     state.loginStep = "room";
+    setAuthPending(false);
     renderAuthGate();
     showToast("Logged in. Choose room access.");
+}
+
+function setAuthPending(isPending, label = "") {
+    if (!elements.authSubmitBtn) {
+        return;
+    }
+
+    elements.authSubmitBtn.disabled = isPending;
+    elements.authSubmitBtn.setAttribute("aria-busy", String(isPending));
+    elements.authSubmitBtn.classList.toggle("is-pending", isPending);
+    if (isPending && elements.authStatus) {
+        elements.authStatus.textContent = label;
+        elements.authStatus.classList.remove("is-error");
+    }
 }
 
 function submitAuthLocalFallback(email, password, name) {
@@ -1320,70 +1388,6 @@ function submitAuthLocalFallback(email, password, name) {
     state.loginStep = "room";
     renderAuthGate();
     showToast("Logged in (demo mode). Choose room access.");
-}
-
-function revealAuthGate() {
-    elements.body.classList.add("show-auth");
-    refreshIcons();
-}
-
-function openForgotPasswordPanel() {
-    elements.forgotPasswordEmail.value = elements.loginEmail.value.trim();
-    elements.forgotPasswordStatus.textContent = "";
-    elements.forgotPasswordPanel.classList.remove("hidden");
-    refreshIcons();
-}
-
-function closeForgotPasswordPanel() {
-    elements.forgotPasswordPanel.classList.add("hidden");
-}
-
-async function submitForgotPassword() {
-    const email = normalizeEmail(elements.forgotPasswordEmail.value);
-
-    if (!email || !email.includes("@")) {
-        showToast("Enter a valid email first.");
-        return;
-    }
-
-    if (!supabaseClient) {
-        elements.forgotPasswordStatus.textContent = "Password reset needs Supabase configured — this demo is running in local/offline mode.";
-        return;
-    }
-
-    elements.forgotPasswordSubmitBtn.disabled = true;
-    showToast("Sending reset link...");
-
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
-    });
-
-    elements.forgotPasswordSubmitBtn.disabled = false;
-
-    if (error) {
-        elements.forgotPasswordStatus.textContent = error.message || "Could not send reset link. Try again.";
-        return;
-    }
-
-    elements.forgotPasswordStatus.textContent = `If an account exists for ${email}, a reset link is on its way.`;
-    showToast("Reset email sent.");
-}
-
-async function submitGoogleSignIn() {
-    if (!supabaseClient) {
-        showToast("Google sign-in needs Supabase configured with a Google provider enabled.");
-        return;
-    }
-
-    showToast("Redirecting to Google...");
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin }
-    });
-
-    if (error) {
-        showToast(error.message || "Could not start Google sign-in.");
-    }
 }
 
 function updateRoleCopy() {
@@ -1492,105 +1496,44 @@ async function ensureRoomForLoginBackend(role) {
         return null;
     }
 
-    let room = state.rooms[roomCode];
-    if (!room) {
-        const { data } = await supabaseClient.from("rooms").select("*").eq("code", roomCode).maybeSingle();
-        if (data) {
-            room = mapDbRoomToLocal(data);
-            state.rooms[roomCode] = room;
-        }
-    }
+    const { data, error } = await supabaseClient.rpc("enter_room", {
+        p_room_code: roomCode,
+        p_role: role,
+        p_full_name: candidateName,
+        p_college: college || null,
+        p_batch: batch || null,
+        p_cr_pin: crPin || null
+    }).single();
 
-    if (role === "student") {
-        if (!room) {
-            showToast("Room not found. Ask your CR for the room code.");
-            return null;
-        }
-
-        if (room.crLocked) {
-            showToast("This room isn't accepting new students right now.");
-            return null;
-        }
-
-        const { data: profileData, error } = await supabaseClient
-            .from("profiles")
-            .upsert({
-                id: state.account.id,
-                full_name: candidateName,
-                role: "student",
-                college: room.college,
-                batch: room.batch,
-                room_code: roomCode
-            })
-            .select()
-            .single();
-
-        if (error) {
-            showToast(error.message || "Could not join room.");
-            return null;
-        }
-
-        upsertLocalProfileCache(profileData);
-        state.activeRoomCode = roomCode;
-        elements.loginName.value = profileData.full_name;
-        elements.loginCollege.value = room.college;
-        elements.loginBatch.value = room.batch;
-        return room;
-    }
-
-    if (!room && !college) {
-        showToast("Enter college to create the CR room.");
+    if (error || !data) {
+        showToast(error?.message || "Could not enter this room.");
         return null;
     }
 
-    if (!crPin || crPin.length < 4) {
-        showToast("Set or enter a CR PIN with at least 4 characters.");
-        return null;
-    }
-
-    const pinHash = await hashCrPin(crPin);
-
-    if (!room) {
-        const { data, error } = await supabaseClient
-            .from("rooms")
-            .insert({ code: roomCode, college, batch, cr_pin_hash: pinHash, created_by: state.account.id })
-            .select()
-            .single();
-
-        if (error) {
-            showToast(error.message || "Could not create room.");
-            return null;
-        }
-
-        room = mapDbRoomToLocal(data);
-        state.rooms[roomCode] = room;
-    } else {
-        if (room.crPinHash !== pinHash) {
-            showToast("Wrong CR PIN for this room.");
-            return null;
-        }
-    }
-
-    const { data: crProfileData, error: crProfileError } = await supabaseClient
+    const room = {
+        code: data.code,
+        college: data.college,
+        batch: data.batch || "",
+        crLocked: Boolean(data.cr_locked),
+        createdBy: data.created_by
+    };
+    const { data: profileData, error: profileError } = await supabaseClient
         .from("profiles")
-        .upsert({
-            id: state.account.id,
-            full_name: candidateName,
-            role: "cr",
-            college: room.college,
-            batch: room.batch,
-            room_code: roomCode
-        })
-        .select()
+        .select("*")
+        .eq("id", state.account.id)
         .single();
 
-    if (crProfileError) {
-        showToast(crProfileError.message || "Could not open CR access.");
+    if (profileError || !profileData) {
+        showToast("Room access was granted, but your profile could not be loaded. Please try again.");
         return null;
     }
 
-    upsertLocalProfileCache(crProfileData);
+    state.rooms[roomCode] = room;
+    upsertLocalProfileCache(profileData);
     state.activeRoomCode = roomCode;
+    elements.loginName.value = profileData.full_name;
+    elements.loginCollege.value = room.college;
+    elements.loginBatch.value = room.batch;
     return room;
 }
 
@@ -3438,10 +3381,20 @@ function titleCase(value) {
 
 function renderNotesMarketplace() {
     const activeRoom = getActiveRoomCode();
+    const subjects = [...new Set(state.notes.map((note) => note.subject).filter(Boolean))].sort();
+    if (elements.notesSubjectFilter) {
+        elements.notesSubjectFilter.innerHTML = `<option value="all">All subjects</option>${subjects.map((subject) => `<option value="${escapeHtml(subject)}">${escapeHtml(subject)}</option>`).join("")}`;
+        elements.notesSubjectFilter.value = state.notesSubjectFilter;
+    }
     const notes = state.notes.filter((note) => {
         const haystack = [note.title, note.subject, note.college, note.uploader].join(" ").toLowerCase();
         const matchesRoom = !activeRoom || !note.roomCode || note.roomCode === activeRoom;
-        return matchesRoom && (!state.notesSearch || haystack.includes(state.notesSearch));
+        const matchesSubject = state.notesSubjectFilter === "all" || note.subject === state.notesSubjectFilter;
+        return matchesRoom && matchesSubject && (!state.notesSearch || haystack.includes(state.notesSearch));
+    }).sort((a, b) => {
+        if (state.notesSort === "rating") return Number(b.rating || 0) - Number(a.rating || 0);
+        if (state.notesSort === "price-low") return Number(a.price || 0) - Number(b.price || 0);
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
 
     elements.notesList.replaceChildren();
@@ -4390,6 +4343,10 @@ function showToast(message) {
     toastTimer = window.setTimeout(() => {
         elements.toast.classList.remove("show");
     }, 2400);
+    if (elements.body.classList.contains("login-active") && elements.authStatus) {
+        elements.authStatus.textContent = message;
+        elements.authStatus.classList.toggle("is-error", /could not|no account|invalid|must|already exists|wrong|failed/i.test(message));
+    }
 }
 
 function refreshIcons() {
@@ -4449,7 +4406,7 @@ function renderHelpChatHistory() {
     if (!history.length) {
         elements.helpChatMessages.innerHTML = `
             <div class="help-chat-bubble assistant">
-                <p>Hi! I'm the Campus One Help Assistant. Ask me about room codes, the CR Board, notes marketplace, or how any feature works.</p>
+                <p>Hi! I’m your AI Doubt Solver. Ask a concise study question and I’ll explain it clearly, step by step.</p>
             </div>
         `;
         return;
@@ -4487,7 +4444,7 @@ async function submitHelpChatMessage(event) {
             body: JSON.stringify({ message, history: history.slice(-6) })
         });
         const data = response.ok ? await response.json() : null;
-        const reply = data?.reply || "I can help with room codes, the CR Board, notes marketplace, and general navigation.";
+        const reply = data?.reply || "I couldn’t generate that explanation just now. Try asking again with the topic and what specifically is confusing.";
         const updated = getHelpChatHistory();
         updated.push({ role: "assistant", content: reply });
         setHelpChatHistory(updated);

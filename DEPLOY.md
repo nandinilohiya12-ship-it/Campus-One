@@ -83,3 +83,10 @@ Only `razorpayKeyId` goes in `config.js`. Never put `RAZORPAY_KEY_SECRET` in fro
 ## Income Management
 
 Money from real payments settles into the bank account connected to your Razorpay merchant account. Seller earnings are tracked in the app as `70%` of the note sale price, while platform earnings are `30%`. Read `PAYMENTS.md` before enabling live payments.
+# Campus One deployment checklist
+
+Before publishing, run `supabase-schema.sql` and then `supabase-security-hardening.sql` in the Supabase SQL editor. The second migration is required: it moves CR PIN verification and role assignment into the database and removes client-side privilege escalation paths.
+
+In Supabase Authentication, add the final production URL to Redirect URLs and enable Google only after configuring the provider's client ID and secret. Set the production URL in the reset-password redirect settings as well.
+
+In Netlify, configure `GEMINI_API_KEY`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` as encrypted environment variables. Never add service-role or payment-secret values to `config.js`.
