@@ -61,23 +61,39 @@ $$;
 revoke all on function public.enter_room(text, public.user_role, text, text, text, text) from public;
 grant execute on function public.enter_room(text, public.user_role, text, text, text, text) to authenticated;
 
+-- Policies must not query profiles directly from another profiles policy: doing
+-- so causes PostgreSQL RLS recursion. This narrowly scoped definer function
+-- lets policies check the caller's room without exposing other profile rows.
+create or replace function public.is_room_member(p_room_code text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and room_code = p_room_code
+  );
+$$;
+
+revoke all on function public.is_room_member(text) from public;
+grant execute on function public.is_room_member(text) to authenticated;
+
 drop policy if exists "Rooms are visible to authenticated users" on public.rooms;
 create policy "Members can view their room"
 on public.rooms for select to authenticated using (
   created_by = (select auth.uid())
-  or exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.room_code = rooms.code)
+  or public.is_room_member(code)
 );
 
 drop policy if exists "Profiles are visible to authenticated users" on public.profiles;
+drop policy if exists "Users can view their profile and room members" on public.profiles;
 create policy "Users can view their profile and room members"
 on public.profiles for select to authenticated using (
   id = (select auth.uid())
-  or room_code is not null and exists (
-    select 1 from public.profiles mine
-    where mine.id = (select auth.uid()) and mine.room_code = profiles.room_code
-  )
+  or room_code is not null and public.is_room_member(room_code)
 );
 
 drop policy if exists "Users can update their own profile" on public.profiles;
 drop policy if exists "Users can insert their own profile" on public.profiles;
-
