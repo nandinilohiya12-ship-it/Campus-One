@@ -263,7 +263,8 @@ const state = {
     sortMode: "newest",
     notesSearch: "",
     notesSubjectFilter: "all",
-    notesSort: "newest"
+    notesSort: "newest",
+    premiumEntitlementChecked: !hasSupabaseConfig
 };
 
 const elements = {
@@ -509,10 +510,16 @@ async function syncPremiumEntitlement() {
         .eq("user_id", state.account.id)
         .eq("feature", "personal_ai")
         .limit(1);
-    if (!error && data?.length) {
-        state.aiToolAccess[getPremiumKey()] = { paid: true, amount: AI_FEATURE_PRICE, paymentId: data[0].payment_id, paidAt: new Date(data[0].paid_at).getTime() };
+    if (error) return;
+    const key = getPremiumKey();
+    if (data?.length) {
+        state.aiToolAccess[key] = { paid: true, amount: AI_FEATURE_PRICE, paymentId: data[0].payment_id, paidAt: new Date(data[0].paid_at).getTime() };
+        saveAiToolAccess();
+    } else {
+        delete state.aiToolAccess[key];
         saveAiToolAccess();
     }
+    state.premiumEntitlementChecked = true;
 }
 
 async function syncNotesFromBackend() {
@@ -2593,7 +2600,8 @@ function clampPrice(price, maxPrice) {
 }
 
 function hasAiToolAccess() {
-    return Boolean(state.aiToolAccess[getPremiumKey()]?.paid);
+    return (!hasSupabaseConfig || state.premiumEntitlementChecked)
+        && Boolean(state.aiToolAccess[getPremiumKey()]?.paid);
 }
 
 function getPremiumKey() {
